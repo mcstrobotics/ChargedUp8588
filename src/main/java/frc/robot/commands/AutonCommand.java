@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.subsystems.drive.mecanum.MecanumDriveSubsystem;
+import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class AutonCommand extends SequentialCommandGroup {
