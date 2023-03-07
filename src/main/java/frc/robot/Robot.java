@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -19,6 +20,20 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private final double autonPeriod = 15;
+  private Timer timer;
+
+  private enum AutonomousPhase {
+    PHASE1_DROP_PAYLOAD,
+    PHASE2_MOVE_OUT_OF_SAFE_ZONE,
+    PHASE3_LOCATE_DOCK,
+    PHASE4_MOVE_TOWARD_DOCK,
+    PHASE5_GET_ON_DOCK,
+    PHASE6_LEVEL
+  }
+
+  private AutonomousPhase currentPhase;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -28,6 +43,10 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    timer = new Timer();
+    currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
+
+
   }
 
   /**
@@ -57,6 +76,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    timer.reset();
+    timer.start();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -66,7 +87,49 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    double timeElapsed = timer.get();
+
+
+    if (timeElapsed < autonPeriod) {
+            switch (currentPhase) {
+                case PHASE1_DROP_PAYLOAD:
+                    // do any necessary pre-phase setup
+                    currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
+                    break;
+                    
+                case PHASE2_MOVE_OUT_OF_SAFE_ZONE:
+                    // locate the dock pad
+                    // move toward the dock pad
+                    // drop the payload into the dock
+                    currentPhase = AutonomousPhase.PHASE3_LOCATE_DOCK;
+                    break;
+                    
+                case PHASE3_LOCATE_DOCK:
+                    // re-orientate if necessary
+                    // move out of the safe zone
+                    // periodically check for obstacles
+                    // if an obstacle is identified, go around it and continue on the path
+                    currentPhase = AutonomousPhase.PHASE4_MOVE_TOWARD_DOCK;
+                    break;
+                    
+                case PHASE4_MOVE_TOWARD_DOCK:
+                    // locate the dock using the camera
+                    // identify corners and sides
+                    // generate a path to the dock
+                    currentPhase = AutonomousPhase.PHASE5_GET_ON_DOCK;
+                    break;
+                    
+                case PHASE5_GET_ON_DOCK:
+                    // move along the path to the dock
+                    // periodically check for obstacles
+                    // if an obstacle is identified, go around it and continue on the path
+                    currentPhase = AutonomousPhase.PHASE6_LEVEL;
+                    break;
+                    
+      }
+    }
+  }
 
   @Override
   public void teleopInit() {
