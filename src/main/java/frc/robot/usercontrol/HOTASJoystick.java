@@ -27,7 +27,12 @@ public class HOTASJoystick extends Joystick{
     public static final int SMALL_BUTTON_Y = 0; //axis 2
     public static final int TURNER_AXIS = 0; //axis 3
 
+    // POV Button, whatever that is
+    public static final int POV_BUTTON = 0; //POV ranges from 0 to 315 degrees
+
     // now the buttons, who's description is purely in the eye of the beholder 
+    public static final int B_BUTTON = 0; //button 2, this is the button with a B on it on the top right side of the flight stick
+    public static final int TRIGGER_BUTTON = 0; // button 0, this is the trigger button on the flight stick
     
     public HOTASJoystick(int port) {
         super(port);
