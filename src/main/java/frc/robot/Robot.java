@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
 
   private AutonomousPhase currentPhase;
 
-  //Variables (capitalized variabels arent finalized yet until we can collect data)
+  //Variables for image processing (capitalized variabels arent finalized yet until we can collect data)
   private static int IMG_WIDTH; //width of the image being captured (not finalizing until we get a value for our resolution)
   private static int IMG_HEIGHT; //height/length of captured image 
 
@@ -66,12 +66,6 @@ public class Robot extends TimedRobot {
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
 
-
-
-    //Commenting this out for the time being 
-    
-   
-     
     //initialize our camera(should be connected to Robot RIO, will double check that we are using one with engineering/electrical)
     UsbCamera camera = CameraServer.startAutomaticCapture();
     //set the resolution of the camera
@@ -80,10 +74,6 @@ public class Robot extends TimedRobot {
     //Insert CV source and sink (later, I would like to do some more research to figure out what those do)
     CvSink sink = CameraServer.getVideo(); //get images for processing(sink)
     CvSource output = CameraServer.putVideo("DevilCam", IMG_WIDTH, IMG_HEIGHT); //in case we want to send anything to the dashboard
-    
-    
-    
-       
     
   }
 
