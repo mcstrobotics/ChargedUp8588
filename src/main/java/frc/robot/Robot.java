@@ -13,7 +13,7 @@ import edu.wpi.first.cameraserver.CameraServer; //camera server
 import edu.wpi.first.cscore.UsbCamera; //usb camera
 import edu.wpi.first.cscore.CvSink; //sink 
 import edu.wpi.first.cscore.CvSource; //source, yadda yadda, all of this vision processing stuff :P 
-import edu.wpi.first.cscore.MjpegServer; //i have no idea if we want to creat mjpeg servers tbh
+import edu.wpi.first.cscore.MjpegServer; //i have no idea if we want to creat mjpeg servers tbh, or if this is even needed
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -25,8 +25,19 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  //Variables (capitalized variabels arent finalized yet until we can collect data)
   private static int IMG_WIDTH; //width of the image being captured (not finalizing until we get a value for our resolution)
   private static int IMG_HEIGHT; //height/length of captured image 
+
+  private static double FIELD_OF_VIEW; //feild of view of our camera(calculate manually)
+  private static int CAMERA_ANGLE; //angle the camera is mounted on
+  private static int CAMERA_HEIGHT; //how high up is our camera mounted? 
+
+  //help us with the positioning of our target 
+  private static double pitch; //pitch, important for distance judging
+  private static double yaw; //tbh idk where we would use the yaw :/ 
+  private static int targetPosX; //use this to write poition in coordingates to coordinate grid to match driving/joystick coordinate plane
+  private static int targetPosY; // likewise as aboove 
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -39,8 +50,8 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     //Commenting this out for the time being 
-    /*
-     * AM COMMETING OUT MY CODE CUZ AM AFRAID START AUTOMATIC CAPTURE COULD BUG OUT ZA CODE REEEEEEEEE
+    
+   
      
     //initialize our camera(should be connected to Robot RIO, will double check that we are using one with engineering/electrical)
     UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -50,8 +61,10 @@ public class Robot extends TimedRobot {
     //Insert CV source and sink (later, I would like to do some more research to figure out what those do)
     CvSink sink = CameraServer.getVideo(); //get images for processing(sink)
     CvSource output = CameraServer.putVideo("DevilCam", IMG_WIDTH, IMG_HEIGHT); //in case we want to send anything to the dashboard
-
-     */
+    
+    
+    
+       
     
   }
 
