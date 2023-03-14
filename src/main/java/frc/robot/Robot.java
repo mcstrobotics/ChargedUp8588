@@ -2,12 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+/*
+ * Names: Ethan and Nishit 
+ * Started March 7
+ * A lot of the variables may be deleted soon depending on what approach we take :/ 
+ * Uhhh... idk what else to put in this heder file 
+ */
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.util.ArrayList;
+//import java.util.List; 
 
 //Autonomonous Import
 import edu.wpi.first.cameraserver.CameraServer; //camera server
@@ -15,6 +23,16 @@ import edu.wpi.first.cscore.UsbCamera; //usb camera
 import edu.wpi.first.cscore.CvSink; //sink 
 import edu.wpi.first.cscore.CvSource; //source, yadda yadda, all of this vision processing stuff :P 
 import edu.wpi.first.cscore.MjpegServer; //i have no idea if we want to creat mjpeg servers tbh, or if this is even needed
+import org.opencv.core.Rect;
+import org.opencv.core.Core;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc; //why cant i use one import for all opencv functionality!?! 
+
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -54,6 +72,41 @@ public class Robot extends TimedRobot {
   private static int targetPosX; //use this to write poition in coordingates to coordinate grid to match driving/joystick coordinate plane
   private static int targetPosY; // likewise as aboove 
 
+  //Open CV/img processing stuff
+  private Mat feed; //let's have this mat have the camera feed
+  Scalar boxColor = new Scalar(0, 255, 0); //color of drawn contours 
+  /*
+   * pretty much to see if an obstacle is directly in front of the robot we will use a specific range on the camera feed to see
+   * when an object is directly in the path/grabbable by intake so that way the robot can take action accordingly 
+   */
+  private static int frontCoordinate[] = {0,0}; //coordinate of range(top left)
+  private static int frontDimensions[] = {0,0}; //(width and height of that box)
+
+  //hue saturation and lightness range(Scalar(hue, saturation, value))
+  //cone hue saturation lightness range (red)
+  private Scalar coneLower = new Scalar(0,0,0);
+  private Scalar coneHigher = new Scalar(0, 0, 0);
+  //cube hue saturation lightness range(purple)
+  private Scalar cubeLower = new Scalar(0,0,0);
+  private Scalar cubeHigher = new Scalar(0, 0, 0);
+  //red bumper and target lightness range (use aspect ratio to differentiate the objects)
+  private Scalar redLower = new Scalar(0,0,0);
+  private Scalar redHigher = new Scalar(0, 0, 0);
+  //identify blue bumper and target lightness range(again use aspect ratio to differentiate)
+  private Scalar blueLower = new Scalar(0,0,0);
+  private Scalar blueHigher = new Scalar(0, 0, 0);
+
+  //aspect ratio values (width/height)
+  private double coneAspectRatio; //aspect ratio of cone
+  private double cubeAspectRatio; //aspect ratio of cube
+  private double robotAspectRatio;
+  private double lineAspectRatio;  //aspect ratio of lines(seperating home base)
+  private double payloadAspectRatio; //aspect ratio of the payload docking station(however we choose to identify it)
+
+  //countour arraylists
+  ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(); //cones and cubes
+  ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(); //other robots 
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -65,7 +118,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
-
+    
     //initialize our camera(should be connected to Robot RIO, will double check that we are using one with engineering/electrical)
     UsbCamera camera = CameraServer.startAutomaticCapture();
     //set the resolution of the camera
@@ -191,4 +244,58 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
+  contours as rectangles to be drawn on the main image*/
+  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, ArrayList<Rect> rectangles){
+    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours
+    Mat hierarchy = new Mat(); //hierarchy, for the color isolation
+    Mat dest = new Mat(); //destination of the color alterred image 
+    Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation, 
+    erosion,opening, etc. Am i creating too many mats!?!*/
+
+    //color isolation
+    Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image 
+    Core.inRange(dest, lower, higher, dest); //get color
+
+    // remove noise via opening 
+    Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel);
+    //isolate contours
+    Imgproc.findContours(dest, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+    MatOfPoint2f[] contoursReg = new MatOfPoint2f[contours.size()]; //approx contour length,(good for boundng box)
+    /*further get rid of noise/regularify the sides, 
+    plus we need to convert our countors to a different format so we can create bounding rectangles! */
+    
+    for(int i = 0; i < contours.size(); i++){
+      double area = Imgproc.contourArea(contours.get(i));
+
+      if(area > 100){ //if the contour isn't too small (test for noise later on)
+        Imgproc.drawContours(img, contours, -1, this.boxColor, 4); //draw contours(for dashboard) 
+
+        double perimeter = Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true); //get the perimeter
+        Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), contoursReg[i], 0.02 * perimeter, true); //polygonify
+        Rect potential = Imgproc.boundingRect(new MatOfPoint(contoursReg[i].toArray()));  //use to check aspect ratio
+
+
+        //check if the desired aspect ratio is met
+        double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
+        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
+          rectangles.add(potential); //add it to the list! 
+        }
+      }
+    }
+  }
+
+  public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for 
+    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, payloadBoundingRect); //scan for cubes
+    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, payloadBoundingRect); //scan for cones
+    this.detectContours(feed, redLower, redHigher, robotAspectRatio, robotBoundingRect); //scan for red team robots
+    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect); //scan for blue team robots
+
+  }
+  /*periodically scan for obstacles to see if there are within the robot's range to be hit 
+  if the obstacle is a bumper(stand in place ig?) if it is a cone/cube move around it ig*/
+  public void scanObstacles(Mat img){
+
+  }
 }
