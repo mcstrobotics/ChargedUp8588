@@ -80,7 +80,6 @@ public class RobotContainer {
     
     // Reset the ahrs when button 3 on flight stick is pressed (TODO)
     new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
-
   }
 
   /**
