@@ -4,20 +4,16 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.subsystems.drive.tank.TankDriveChassis;
-import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
-import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import frc.robot.subsystems.drive.tank.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import frc.robot.usercontrol.HOTASJoystick;
+import edu.wpi.first.wpilibj2.command.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -61,12 +57,13 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
+  private void configureBindings(AHRS ahrs) {
     // Schedule commands tied to buttons
 
     // for each button number (corresponds to a button), we are going to run a command / method
     
-    new JoystickButton(flightStick, 0); 
+    // Reset the ahrs when button 3 on flight stick is pressed (TODO)
+    new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
 
   }
 
