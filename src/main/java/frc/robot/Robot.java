@@ -2,12 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-/*
- * Names: Ethan and Nishit 
- * Started March 7
- * A lot of the variables may be deleted soon depending on what approach we take :/ 
- * Uhhh... idk what else to put in this heder file 
- */
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -17,6 +11,22 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.math.trajectory.*;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+
+import frc.robot.subsystems.drive.DriveSubsystem; 
+import frc.robot.subsystems.drive.DriveDirection; 
+import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import frc.robot.subsystems.drive.tank.TankDriveChassis;
+import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
+import frc.robot.commands.DriveCommand;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -45,7 +55,6 @@ public class Robot extends TimedRobot {
 
 
   // Define the reference orientation and the tilt angle threshold
-  private double refAngle = 0;
   private double tiltThreshold = 5; // in degrees
 
   // Define the forward and backward speed limits
@@ -74,6 +83,9 @@ public class Robot extends TimedRobot {
 
   private AutonomousPhase currentPhase;
 
+  String trajectoryJSON = "Paths/Test path to get to save zone.wpilib.json";
+  Trajectory trajectory = new Trajectory();
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -82,11 +94,27 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer(ahrs);
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
+    defaultLevel = ahrs.getRoll();
+    currentLevel = ahrs.getRoll();
 
+    try {
+      ahrs = new AHRS(SPI.Port.kMXP); //the kMXP port is the expansion port for the roborio
+      ahrs.enableLogging(true);
+      //ahrs.calibrate(); //takes approximately 15 seconds to finish (leave commented out for now)
+    }
+    catch (RuntimeException ex) {
+      DriverStation.reportError("Error creating navx sensor object! " + ex.getMessage(), true);
+    }
 
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+   } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+   }
   }
 
   /**
@@ -134,7 +162,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonCommand();
     timer.reset();
     timer.start();
     // schedule the autonomous command (example)
@@ -197,6 +225,7 @@ public class Robot extends TimedRobot {
       }
     }
   }
+}
 
   @Override
   public void teleopInit() {
@@ -230,58 +259,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
-
-  /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
-  contours as rectangles to be drawn on the main image*/
-  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, ArrayList<Rect> rectangles){
-    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours
-    Mat hierarchy = new Mat(); //hierarchy, for the color isolation
-    Mat dest = new Mat(); //destination of the color alterred image 
-    Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation, 
-    erosion,opening, etc. Am i creating too many mats!?!*/
-
-    //color isolation
-    Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image 
-    Core.inRange(dest, lower, higher, dest); //get color
-
-    // remove noise via opening 
-    Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel);
-    //isolate contours
-    Imgproc.findContours(dest, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-    MatOfPoint2f[] contoursReg = new MatOfPoint2f[contours.size()]; //approx contour length,(good for boundng box)
-    /*further get rid of noise/regularify the sides, 
-    plus we need to convert our countors to a different format so we can create bounding rectangles! */
-    
-    for(int i = 0; i < contours.size(); i++){
-      double area = Imgproc.contourArea(contours.get(i));
-
-      if(area > 100){ //if the contour isn't too small (test for noise later on)
-        Imgproc.drawContours(img, contours, -1, this.boxColor, 4); //draw contours(for dashboard) 
-
-        double perimeter = Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true); //get the perimeter
-        Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), contoursReg[i], 0.02 * perimeter, true); //polygonify
-        Rect potential = Imgproc.boundingRect(new MatOfPoint(contoursReg[i].toArray()));  //use to check aspect ratio
-
-
-        //check if the desired aspect ratio is met
-        double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
-        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
-          rectangles.add(potential); //add it to the list! 
-        }
-      }
-    }
-  }
-
-  public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for 
-    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, payloadBoundingRect); //scan for cubes
-    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, payloadBoundingRect); //scan for cones
-    this.detectContours(feed, redLower, redHigher, robotAspectRatio, robotBoundingRect); //scan for red team robots
-    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect); //scan for blue team robots
-
-  }
-  /*periodically scan for obstacles to see if there are within the robot's range to be hit 
-  if the obstacle is a bumper(stand in place ig?) if it is a cone/cube move around it ig*/
-  public void scanObstacles(Mat img){
-
-  }
 }
