@@ -6,10 +6,20 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.tank.TankDriveChassis;
+import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
+import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import frc.robot.usercontrol.HOTASJoystick;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -19,17 +29,27 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  // HOTAS Flight Stick
+  private HOTASJoystick flightStick = new HOTASJoystick(0); // change to correct port in driver station
+
+  private DriveSubsystem driveSubsystem = new TankDriveSubsystem(
+    new TankDriveChassis( // tank chassis as opposed to arcade or mecanum
+      new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // first number corresponds with device id - may change
+      new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
+      new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
+      new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless)
+      ),
+    new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
+    
+  private DriveCommand driveCommand = new DriveCommand(driveSubsystem); // issue the drive commands from the drive subsystem
+  // eventually make an auton command
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+  public RobotContainer(AHRS ahrs) {
     // Configure the trigger bindings
-    configureBindings();
+    configureBindings(ahrs);
+
   }
 
   /**
@@ -42,13 +62,12 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    // Schedule commands tied to buttons
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // for each button number (corresponds to a button), we are going to run a command / method
+    
+    new JoystickButton(flightStick, 0); 
+
   }
 
   /**
@@ -56,8 +75,22 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+  public DriveSubsystem getDriveSubsystem() {
+    return driveSubsystem;
+  }
+
+  public HOTASJoystick getGamepad() {
+    return flightStick;
+  }
+
+  /**
+  * Use this to pass the teleop command to the main {@link Robot} class.
+  *
+  * @return the command to run in teleop
+  */
+  public DriveCommand getDriveCommand()
+  {
+    // driveCommand will run in teleop
+    return driveCommand;
   }
 }
