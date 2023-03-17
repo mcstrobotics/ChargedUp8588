@@ -6,7 +6,8 @@
  * Names: Ethan and Nishit 
  * Started March 7
  * A lot of the variables may be deleted soon depending on what approach we take :/ 
- * Uhhh... idk what else to put in this heder file 
+ * I wish I could use dynamic memory, why couldn't we use C++!?!
+ * Uhhh... idk what else to put in this header file, just pray we dont run out of memory ig lolll :D 
  */
 package frc.robot;
 
@@ -155,8 +156,8 @@ public class Robot extends TimedRobot {
   private double payloadAspectRatio; //aspect ratio of the payload docking station(however we choose to identify it)
 
   //countour arraylists
-  ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(10); //cones and cubes
-  ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(10); //other robots 
+  Rect[] payloadBoundingRect = new Rect[10]; //cones and cubes
+  Rect[] robotBoundingRect = new Rect[10]; //other robots 
 
   //video thread (important)
   Thread mentalPain; 
@@ -363,8 +364,8 @@ public class Robot extends TimedRobot {
 
   /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
   contours as rectangles to be drawn on the main image*/
-  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, ArrayList<Rect> rectangles){
-    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours
+  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, Rect[] rectangles){
+    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours, use arraylist to avoid index out of bounds exception
     Mat hierarchy = new Mat(); //hierarchy, for the color isolation
     Mat dest = new Mat(); //destination of the color alterred image 
     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation, 
@@ -397,8 +398,8 @@ public class Robot extends TimedRobot {
         //check if the desired aspect ratio is met
         double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
         if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
-          if(listCount < rectangles.size()){ //scan for overflow
-            rectangles.set(listCount, potential); //add it to the list! 
+          if(listCount < rectangles.length){ //scan for overflow
+            rectangles[listCount] = potential; //add it to the list! 
             listCount ++; //increase the count 
           }
         }
@@ -415,8 +416,8 @@ public class Robot extends TimedRobot {
   }
   //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
   public boolean scanStationaryObstacles(){
-    for(int i = 0; i < payloadBoundingRect.size(); i++){ //run thru the arraylist of bounding rectangles 
-      Rect check = payloadBoundingRect.get(i); //i want to type less >:P 
+    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect[i]; //i want to type less >:P 
       if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
       ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
       || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
@@ -430,8 +431,8 @@ public class Robot extends TimedRobot {
 
   //same thing but for robots(we wnat to do different things if it is a robot or object)
   public boolean scanRobots(){
-    for(int i = 0; i < payloadBoundingRect.size(); i++){ //run thru the arraylist of bounding rectangles 
-      Rect check = payloadBoundingRect.get(i); //i want to type less >:P 
+    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect[i]; //i want to type less >:P 
       if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
       ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
       || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
