@@ -124,6 +124,7 @@ public class Robot extends TimedRobot {
 */
   //Open CV/img processing stuff
   private Mat feed; //let's have this mat have the camera feed
+  private Mat testMat; //mat for testing just in case :P 
   Scalar boxColor = new Scalar(0, 255, 0); //color of drawn contours 
   /*
    * pretty much to see if an obstacle is directly in front of the robot we will use a specific range on the camera feed to see
@@ -157,6 +158,9 @@ public class Robot extends TimedRobot {
   ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(10); //cones and cubes
   ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(10); //other robots 
 
+  //video thread (important)
+  Thread mentalPain; 
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -171,9 +175,7 @@ public class Robot extends TimedRobot {
     defaultLevel = ahrs.getRoll();
     currentLevel = ahrs.getRoll();
 
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    //set the resolution of the camera
-    camera.setResolution(IMG_WIDTH, IMG_HEIGHT); //set the resolution
+    
 
     try {
       ahrs = new AHRS(SPI.Port.kMXP); //the kMXP port is the expansion port for the roborio
@@ -190,6 +192,29 @@ public class Robot extends TimedRobot {
    } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
    }
+
+   //vision thread stuff
+   mentalPain = new Thread(() -> {
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    //set the resolution of the camera
+    camera.setResolution(IMG_WIDTH, IMG_HEIGHT); //set the resolution
+    CvSink sink = CameraServer.getVideo(); //get input 
+    CvSource output = CameraServer.putVideo("DevilCam", IMG_WIDTH, IMG_HEIGHT); //display to dashboard
+
+    feed = new Mat(); 
+
+    while(!Thread.interrupted()){
+      if(sink.grabFrame(feed) == 0){ //check for interruptions
+        output.notifyError(sink.getError()); 
+        continue;
+      }
+
+      output.putFrame(feed); //display mat image to the dashboard
+    }
+    mentalPain.setDaemon(true);
+    mentalPain.start(); //start the thread run
+
+   });
   }
 
   /**
@@ -416,5 +441,14 @@ public class Robot extends TimedRobot {
       }
     }
     return false; 
+  }
+ 
+  //all of these are soley for testing stuff
+  public void setMat(Mat m){ //set mat function
+    testMat = m; 
+  }
+
+  public Mat getMat(){ //get mat function
+    return testMat; 
   }
 }
