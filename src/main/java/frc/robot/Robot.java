@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
   private static int IMG_WIDTH; //width of the image being captured (not finalizing until we get a value for our resolution)
   private static int IMG_HEIGHT; //height/length of captured image 
 
+  //i uncommented these out cuz i thought we didnt need them but these may come back :/ 
   /* 
   private static double FIELD_OF_VIEW; //feild of view of our camera(calculate manually)
   private static int CAMERA_ANGLE; //angle the camera is mounted on
@@ -153,7 +154,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {}
-
+ 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
@@ -177,14 +178,6 @@ public class Robot extends TimedRobot {
             switch (currentPhase) {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
-                        /*
-                         * rotate 180 degrees
-                         * either A) locate the payload place via vision processing or just have it go a set distance evry time
-                         * move there (scan for obstacles, move, repeat)
-                         * drop payload
-                         * back up 
-                         * change phase
-                         */
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -192,15 +185,6 @@ public class Robot extends TimedRobot {
                     // locate the dock pad
                     // move toward the dock pad
                     // drop the payload into the dock
-                    /*
-                     * rotate 180 degrees
-                     * search for the red line (look for contours, warp points, grab aspect ratio)
-                     * move until the line is out of sight
-                     * if the gyroscope ends up not working jsut look ofr a payload(move forward until one is detected)
-                     * move toward it
-                     * grab it
-                     * 
-                     */
                     currentPhase = AutonomousPhase.PHASE3_LOCATE_DOCK;
                     break;
                     
