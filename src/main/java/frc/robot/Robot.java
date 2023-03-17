@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
   private static int IMG_WIDTH; //width of the image being captured (not finalizing until we get a value for our resolution)
   private static int IMG_HEIGHT; //height/length of captured image 
 
+  /* 
   private static double FIELD_OF_VIEW; //feild of view of our camera(calculate manually)
   private static int CAMERA_ANGLE; //angle the camera is mounted on
   private static int CAMERA_HEIGHT; //how high up is our camera mounted? 
@@ -71,7 +72,7 @@ public class Robot extends TimedRobot {
   private static double yaw; //tbh idk where we would use the yaw :/ 
   private static int targetPosX; //use this to write poition in coordingates to coordinate grid to match driving/joystick coordinate plane
   private static int targetPosY; // likewise as aboove 
-
+*/
   //Open CV/img processing stuff
   private Mat feed; //let's have this mat have the camera feed
   Scalar boxColor = new Scalar(0, 255, 0); //color of drawn contours 
@@ -97,15 +98,15 @@ public class Robot extends TimedRobot {
   private Scalar blueHigher = new Scalar(0, 0, 0);
 
   //aspect ratio values (width/height)
-  private double coneAspectRatio; //aspect ratio of cone
-  private double cubeAspectRatio; //aspect ratio of cube
+  private double coneAspectRatio = 8 / 12.5; //aspect ratio of cone (width could potentially be 6 depending on what is picked up)
+  private double cubeAspectRatio = 9.5 / 9.5; //aspect ratio of cube
   private double robotAspectRatio;
   private double lineAspectRatio;  //aspect ratio of lines(seperating home base)
   private double payloadAspectRatio; //aspect ratio of the payload docking station(however we choose to identify it)
 
   //countour arraylists
-  ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(); //cones and cubes
-  ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(); //other robots 
+  ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(10); //cones and cubes
+  ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(10); //other robots 
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -176,6 +177,14 @@ public class Robot extends TimedRobot {
             switch (currentPhase) {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
+                        /*
+                         * rotate 180 degrees
+                         * either A) locate the payload place via vision processing or just have it go a set distance evry time
+                         * move there (scan for obstacles, move, repeat)
+                         * drop payload
+                         * back up 
+                         * change phase
+                         */
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -183,6 +192,15 @@ public class Robot extends TimedRobot {
                     // locate the dock pad
                     // move toward the dock pad
                     // drop the payload into the dock
+                    /*
+                     * rotate 180 degrees
+                     * search for the red line (look for contours, warp points, grab aspect ratio)
+                     * move until the line is out of sight
+                     * if the gyroscope ends up not working jsut look ofr a payload(move forward until one is detected)
+                     * move toward it
+                     * grab it
+                     * 
+                     */
                     currentPhase = AutonomousPhase.PHASE3_LOCATE_DOCK;
                     break;
                     
@@ -253,6 +271,7 @@ public class Robot extends TimedRobot {
     Mat dest = new Mat(); //destination of the color alterred image 
     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation, 
     erosion,opening, etc. Am i creating too many mats!?!*/
+    int listCount = 0; //array list 
 
     //color isolation
     Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image 
@@ -280,7 +299,10 @@ public class Robot extends TimedRobot {
         //check if the desired aspect ratio is met
         double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
         if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
-          rectangles.add(potential); //add it to the list! 
+          if(listCount < rectangles.size()){ //scan for overflow
+            rectangles.set(listCount, potential); //add it to the list! 
+            listCount ++; //increase the count 
+          }
         }
       }
     }
@@ -293,9 +315,33 @@ public class Robot extends TimedRobot {
     this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect); //scan for blue team robots
 
   }
-  /*periodically scan for obstacles to see if there are within the robot's range to be hit 
-  if the obstacle is a bumper(stand in place ig?) if it is a cone/cube move around it ig*/
-  public void scanObstacles(Mat img){
+  //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
+  public boolean scanStationaryObstacles(){
+    for(int i = 0; i < payloadBoundingRect.size(); i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect.get(i); //i want to type less >:P 
+      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
+      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+        return true; 
+      }
+    }
+    return false; 
+  }
 
+  //same thing but for robots(we wnat to do different things if it is a robot or object)
+  public boolean scanRobots(){
+    for(int i = 0; i < payloadBoundingRect.size(); i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect.get(i); //i want to type less >:P 
+      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
+      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+        return true; 
+      }
+    }
+    return false; 
   }
 }
