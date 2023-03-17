@@ -10,19 +10,38 @@
  */
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import frc.robot.usercontrol.HOTASJoystick;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import java.util.ArrayList;
-//import java.util.List; 
 
-//Autonomonous Import
-import edu.wpi.first.cameraserver.CameraServer; //camera server
-import edu.wpi.first.cscore.UsbCamera; //usb camera
-import edu.wpi.first.cscore.CvSink; //sink 
-import edu.wpi.first.cscore.CvSource; //source, yadda yadda, all of this vision processing stuff :P 
-import edu.wpi.first.cscore.MjpegServer; //i have no idea if we want to creat mjpeg servers tbh, or if this is even needed
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
+import edu.wpi.first.math.trajectory.*;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+
+import frc.robot.subsystems.drive.DriveSubsystem; 
+import frc.robot.subsystems.drive.DriveDirection; 
+import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import frc.robot.subsystems.drive.tank.TankDriveChassis;
+import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
+import frc.robot.commands.DriveCommand;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera; 
+import edu.wpi.first.cscore.CvSink;  
+import edu.wpi.first.cscore.CvSource; 
+import edu.wpi.first.cscore.MjpegServer; 
 import org.opencv.core.Rect;
 import org.opencv.core.Core;
 import org.opencv.core.MatOfPoint;
@@ -45,7 +64,35 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private final double autonPeriod = 15;
+  private AHRS ahrs;
   private Timer timer;
+  private float defaultLevel = ahrs.getRoll();;
+  private float currentLevel;
+
+  private DriveSubsystem driveSubsystem;
+  private DriveDirection driveDirection;
+  private DriveCommand driveCommand;
+  private TankDriveInputs tankInputs;
+  private TankDriveChassis tankhassis;
+  private TankDriveSubsystem tankSubsystem;
+
+  // Define the reference orientation and the tilt angle threshold
+  private double tiltThreshold = 5; // in degrees
+
+  // Define the forward and backward speed limits
+  private double forwardSpeedLimit = 0.5;
+  private double backwardSpeedLimit = -0.5;
+
+  // Define the PID controller gains
+  private double kP = 0.1;
+  private double kI = 0.0;
+  private double kD = 0.0;
+  private double integral = 0;
+  private double previousError = 0;
+
+  private double speed;
+  private double pidOutput; 
+  
 
   private enum AutonomousPhase {
     PHASE1_DROP_PAYLOAD,
@@ -58,9 +105,10 @@ public class Robot extends TimedRobot {
 
   private AutonomousPhase currentPhase;
 
-  //Variables for image processing (capitalized variabels arent finalized yet until we can collect data)
-  private static int IMG_WIDTH; //width of the image being captured (not finalizing until we get a value for our resolution)
-  private static int IMG_HEIGHT; //height/length of captured image 
+  String trajectoryJSON = "Paths/Test path to get to save zone.wpilib.json";
+  Trajectory trajectory = new Trajectory();
+  private static int IMG_WIDTH;
+  private static int IMG_HEIGHT;
 
   //i uncommented these out cuz i thought we didnt need them but these may come back :/ 
   /* 
@@ -117,19 +165,31 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer(ahrs);
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
-    
-    //initialize our camera(should be connected to Robot RIO, will double check that we are using one with engineering/electrical)
+    defaultLevel = ahrs.getRoll();
+    currentLevel = ahrs.getRoll();
+
     UsbCamera camera = CameraServer.startAutomaticCapture();
     //set the resolution of the camera
     camera.setResolution(IMG_WIDTH, IMG_HEIGHT); //set the resolution
 
-    //Insert CV source and sink (later, I would like to do some more research to figure out what those do)
-    CvSink sink = CameraServer.getVideo(); //get images for processing(sink)
-    CvSource output = CameraServer.putVideo("DevilCam", IMG_WIDTH, IMG_HEIGHT); //in case we want to send anything to the dashboard
-    
+    try {
+      ahrs = new AHRS(SPI.Port.kMXP); //the kMXP port is the expansion port for the roborio
+      ahrs.enableLogging(true);
+      //ahrs.calibrate(); //takes approximately 15 seconds to finish (leave commented out for now)
+    }
+    catch (RuntimeException ex) {
+      DriverStation.reportError("Error creating navx sensor object! " + ex.getMessage(), true);
+    }
+
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+   } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+   }
   }
 
   /**
@@ -146,6 +206,25 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    currentLevel = ahrs.getRoll();
+
+    // Calculate the tilt angle with respect to the reference orientation
+    double tiltAngle = currentLevel - defaultLevel;
+    // Adjust the robot's movements based on the tilt angle
+    double forwardSpeed = forwardSpeedLimit;
+    double backwardSpeed = backwardSpeedLimit;
+    if (tiltAngle > tiltThreshold) {
+      forwardSpeed = 0;
+    } 
+    else if (tiltAngle < -tiltThreshold) {
+      backwardSpeed = 0;
+    }
+
+    // Fine-tune the robot's movements using a PID controller
+    double error = tiltAngle;
+    integral += error * 0.02; // integrate over 20ms (default loop time)
+    double derivative = (error - previousError) / 0.02; // differentiate over 20ms
+    pidOutput = kP * error + kI * integral + kD * derivative;
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -158,7 +237,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonCommand();
     timer.reset();
     timer.start();
 
@@ -209,10 +288,20 @@ public class Robot extends TimedRobot {
                     // if an obstacle is identified, go around it and continue on the path
                     currentPhase = AutonomousPhase.PHASE6_LEVEL;
                     break;
+                
+                case PHASE6_LEVEL:
+                if (currentLevel < defaultLevel) {
+                  speed *= (1 - pidOutput);
+                  tankSubsystem.drive(speed, DriveDirection.FORWARD);
+                  if (currentLevel > defaultLevel) {
+                    speed *= (1 + pidOutput);
+                    tankSubsystem.drive(speed, DriveDirection.BACKWARD);
+                  }
                     
       }
     }
   }
+}
 
   @Override
   public void teleopInit() {

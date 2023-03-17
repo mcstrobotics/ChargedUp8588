@@ -4,23 +4,24 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.tank.TankDriveChassis;
 import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
 import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import frc.robot.subsystems.intake.IntakeChassis;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import frc.robot.usercontrol.HOTASJoystick;
+import edu.wpi.first.wpilibj2.command.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutonCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,6 +46,17 @@ public class RobotContainer {
   private DriveCommand driveCommand = new DriveCommand(driveSubsystem); // issue the drive commands from the drive subsystem
   // eventually make an auton command
 
+  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
+    new IntakeChassis(
+            new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
+            new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
+            new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless),
+            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless)
+    )
+);
+
+  private AutonCommand autonCommand = new AutonCommand(driveSubsystem, intakeSubsystem);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(AHRS ahrs) {
     // Configure the trigger bindings
@@ -61,13 +73,13 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
+  private void configureBindings(AHRS ahrs) {
     // Schedule commands tied to buttons
 
     // for each button number (corresponds to a button), we are going to run a command / method
     
-    new JoystickButton(flightStick, 0); 
-
+    // Reset the ahrs when button 3 on flight stick is pressed (TODO)
+    new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
   }
 
   /**
@@ -93,4 +105,9 @@ public class RobotContainer {
     // driveCommand will run in teleop
     return driveCommand;
   }
+
+  public AutonCommand getAutonCommand() {
+    // autonCommand will run in autonomous
+    return autonCommand;
+}
 }
