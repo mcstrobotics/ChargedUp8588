@@ -409,15 +409,18 @@ public class Robot extends TimedRobot {
               Core.inRange(dest, lower2, higher2, dest); //scan for secondary color 
               Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel); //remove noise
               Imgproc.findContours(dest, contours2, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE); //get countours of white
-              double smolArea = Imgproc.contourArea(contours2.get(i)); //get area
-              if(smolArea > 100){ //remove excess noise
-                Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(i).toArray())); //bounding rect it
-                //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/ 
-                
-                //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
-                if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list 
-                  rectangles[listCount] = potential; //add it to the list! 
-                  listCount ++; //increase the count 
+              for(int j = 0; j < contours2.size(); j++){ //run thru new array
+                double smolArea = Imgproc.contourArea(contours2.get(j)); //get area
+                if(smolArea > 100){ //remove excess noise
+                  Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(j).toArray())); //bounding rect it
+                  //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/ 
+                  
+                  //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
+                  if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list 
+                    rectangles[listCount] = potential; //add it to the list! 
+                    listCount ++; //increase the count 
+                    break; // break out of this loop
+                  }
                 }
               }
 
