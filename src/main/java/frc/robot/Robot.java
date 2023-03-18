@@ -400,7 +400,7 @@ public class Robot extends TimedRobot {
 
         //check if the desired aspect ratio is met
         double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
-        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05 || checkRatio == false){ //if the aspect ratio is close enough
+        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05) || checkRatio == false){ //if the aspect ratio is close enough
           if(listCount < rectangles.length){ //scan for overflow
             if(secondaryColor == true){ //if we scanning for a secondary color within the bounds of potential, do that here
               //praying for the robots memory rn, help me
