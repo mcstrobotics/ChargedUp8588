@@ -147,6 +147,9 @@ public class Robot extends TimedRobot {
   //identify blue bumper and target lightness range(again use aspect ratio to differentiate)
   private Scalar blueLower = new Scalar(0,0,0);
   private Scalar blueHigher = new Scalar(0, 0, 0);
+  //white(for bumpers) - ahahaha more crying for the robots memory :_)
+  private Scalar whiteLower = new Scalar(0, 0, 0);
+  private Scalar whiteHigher = new Scalar (0, 0, 0);
 
   //aspect ratio values (width/height)
   private double coneAspectRatio = 8 / 12.5; //aspect ratio of cone (width could potentially be 6 depending on what is picked up)
@@ -364,7 +367,7 @@ public class Robot extends TimedRobot {
 
   /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
   contours as rectangles to be drawn on the main image*/
-  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, Rect[] rectangles){
+  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, Rect[] rectangles, boolean secondaryColor, Scalar lower2, Scalar higher2){
     ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours, use arraylist to avoid index out of bounds exception
     Mat hierarchy = new Mat(); //hierarchy, for the color isolation
     Mat dest = new Mat(); //destination of the color alterred image 
@@ -399,8 +402,29 @@ public class Robot extends TimedRobot {
         double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
         if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
           if(listCount < rectangles.length){ //scan for overflow
+            if(secondaryColor == true){ //if we scanning for a secondary color within the bounds of potential, do that here
+              //praying for the robots memory rn, help me
+              ArrayList<MatOfPoint> contours2 = new ArrayList<MatOfPoint>(); //new array list of contours 
+              Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //reuse destination image to save memory 
+              Core.inRange(dest, lower2, higher2, dest); //scan for secondary color 
+              Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel); //remove noise
+              Imgproc.findContours(dest, contours2, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE); //get countours of white
+              double smolArea = Imgproc.contourArea(contours2.get(i)); //get area
+              if(smolArea > 100){ //remove excess noise
+                Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(i).toArray())); //bounding rect it
+                //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/ 
+                
+                //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
+                if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list 
+                  rectangles[listCount] = potential; //add it to the list! 
+                  listCount ++; //increase the count 
+                }
+              }
+
+            } else { //otherwise we move on
             rectangles[listCount] = potential; //add it to the list! 
             listCount ++; //increase the count 
+            }
           }
         }
       }
@@ -408,10 +432,10 @@ public class Robot extends TimedRobot {
   }
 
   public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for 
-    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, payloadBoundingRect); //scan for cubes
-    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, payloadBoundingRect); //scan for cones
-    this.detectContours(feed, redLower, redHigher, robotAspectRatio, robotBoundingRect); //scan for red team robots
-    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect); //scan for blue team robots
+    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cubes
+    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cones
+    this.detectContours(feed, redLower, redHigher, robotAspectRatio, robotBoundingRect, true, whiteLower, whiteHigher); //scan for red team robots
+    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect, true, whiteLower, whiteHigher); //scan for blue team robots
 
   }
   //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
