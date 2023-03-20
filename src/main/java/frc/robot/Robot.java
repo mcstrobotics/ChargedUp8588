@@ -133,6 +133,12 @@ public class Robot extends TimedRobot {
    */
   private static int frontCoordinate[] = {0,0}; //coordinate of range(top left)
   private static int frontDimensions[] = {0,0}; //(width and height of that box)
+  private Scalar allianceLow;
+  private Scalar allianceHigh;
+  private Scalar allianceLineLow;
+  private Scalar allianceLineHigh; 
+  private Scalar allianceDockLow;
+  private Scalar allianceDockHigh;
 
   //hue saturation and lightness range(Scalar(hue, saturation, value))
   //cone hue saturation lightness range (red)
@@ -150,6 +156,18 @@ public class Robot extends TimedRobot {
   //white(for bumpers) - ahahaha more crying for the robots memory :_)
   private Scalar whiteLower = new Scalar(0, 0, 0);
   private Scalar whiteHigher = new Scalar (0, 0, 0);
+  //line colors
+  private Scalar redLineLow = new Scalar(0,0,0);
+  private Scalar redLineHigh = new Scalar(0, 0, 0);
+  private Scalar blueLineLow = new Scalar(0, 0, 0);
+  private Scalar blueLineHigh = new Scalar(0, 0, 0);
+  //dock colors
+  private Scalar redDockLow = new Scalar(0,0,0);
+  private Scalar redDockHigh = new Scalar(0, 0, 0);
+  private Scalar blueDockLow = new Scalar(0, 0, 0);
+  private Scalar blueDockHigh = new Scalar(0, 0, 0);
+  private static double dockAspectRatio; 
+
 
   //aspect ratio values (width/height)
   private double coneAspectRatio = 8 / 12.5; //aspect ratio of cone (width could potentially be 6 depending on what is picked up)
@@ -176,6 +194,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer(ahrs);
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
+    setAlliance("red");
     defaultLevel = ahrs.getRoll();
     currentLevel = ahrs.getRoll();
 
@@ -286,6 +305,7 @@ public class Robot extends TimedRobot {
             switch (currentPhase) {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
+                    //modify detectContours function to return the biggest one 
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -365,6 +385,24 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {}
 
+  //assign our allience color 
+  public void setAlliance(String color){
+    if(color.equalsIgnoreCase("red")){
+      this.allianceHigh = redLower;
+      this.allianceHigh = redHigher; 
+      this.allianceLineLow = redLineLow;
+      this.allianceLineHigh = redLineHigh;
+      this.allianceDockLow = redDockLow;
+      this.allianceDockHigh = redDockHigh;
+    } else {
+      this.allianceHigh = blueLower;
+      this.allianceHigh = blueHigher;
+      this.allianceLineLow = blueLineLow;
+      this.allianceLineHigh = blueLineHigh;
+      this.allianceDockLow = blueDockLow;
+      this.allianceDockHigh = blueDockHigh;
+    }
+  }
   /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
   contours as rectangles to be drawn on the main image*/
   public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, boolean checkRatio, Rect[] rectangles, boolean secondaryColor, Scalar lower2, Scalar higher2){
@@ -469,6 +507,10 @@ public class Robot extends TimedRobot {
       }
     }
     return false; 
+  }
+  //find the drop off 
+  public static void findDrop(){
+
   }
  
   //all of these are soley for testing stuff
