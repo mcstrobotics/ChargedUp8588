@@ -43,10 +43,10 @@ public class RobotContainer {
 */
     private DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
     new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
-      new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // first number corresponds with device id - may change
-      new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
-      new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
-      new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless)
+      new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
+      new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless), // front left
+      new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
+      new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
       ),
     new ArcadeDriveInputs(flightStick::getX, flightStick::getY, flightStick::getPOV)); // x and y of 
     
@@ -55,10 +55,10 @@ public class RobotContainer {
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
     new IntakeChassis(
-            new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
             new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
             new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless),
-            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless)
+            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless),
+            new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
     )
 );
 
