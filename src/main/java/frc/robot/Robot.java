@@ -305,7 +305,13 @@ public class Robot extends TimedRobot {
             switch (currentPhase) {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
-                    //modify detectContours function to return the biggest one 
+                    //rotate
+                    Rect dropoff = findDrop();
+                    //find rotation coordinate
+                    int[] dropCenter = {(dropoff.x + dropoff.width)/2,(dropoff.y + dropoff.height)/2};
+                    double degrees = Math.toDegrees(Math.atan(Math.abs(IMG_HEIGHT - dropCenter[1]) / Math.abs(IMG_WIDTH - dropCenter[0]))); //for turn
+                    //drive
+                    //drop 
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -485,6 +491,22 @@ public class Robot extends TimedRobot {
     this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for blue team robots
 
   }
+
+  //find the drop off 
+  public Rect findDrop(){
+    Rect[] potentials = new Rect[10];
+    this.detectContours(this.feed, this.allianceDockLow, this.allianceDockHigh, this.dockAspectRatio, true, potentials, false, this.whiteLower, this.whiteHigher);
+    //find the biggest one (closest)
+    Rect biggest = potentials[0]; //start from index
+    for(Rect r: potentials){ //go thru array
+      if(biggest.width * biggest.height > r.width * r.height){
+        biggest = r;
+      }
+    }
+    return biggest;
+    
+  }
+
   //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
   public boolean scanStationaryObstacles(){
     for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles 
@@ -514,10 +536,7 @@ public class Robot extends TimedRobot {
     }
     return false; 
   }
-  //find the drop off 
-  public static void findDrop(){
-
-  }
+  
  
   //all of these are soley for testing stuff
   public void setMat(Mat m){ //set mat function
