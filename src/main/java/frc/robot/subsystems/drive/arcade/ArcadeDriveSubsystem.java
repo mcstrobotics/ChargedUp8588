@@ -11,14 +11,14 @@ Date: 3/29/2021
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.team8588.subsystems.drive.arcade;
+package frc.robot.subsystems.drive.arcade;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.team8588.subsystems.drive.DriveDirection;
-import frc.robot.team8588.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.DriveDirection;
+import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 public class ArcadeDriveSubsystem implements DriveSubsystem {
@@ -139,17 +139,16 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     public void setPowers() {
         double forward = inputs.yStick.get();
         double turn = inputs.xStick.get();
-        double lTrig = inputs.lTrigger.get();
-        double rTrig = inputs.rTrigger.get();
+        double pov = inputs.pov.get();
 
         double triggerThreshold = 0.3;
 
         // Vary power limits based on state of a trigger 
-        if (lTrig > triggerThreshold) { // 25% power
+        if (pov == 0) { // 25% power
             forward /= 4;
             turn /= 4;
             SmartDashboard.putNumber("Power", 25);
-        } else if (rTrig > triggerThreshold) { // 100% power
+        } else if (pov == 4) { // 100% power
             forward /= 1;
             turn /= 1;
             SmartDashboard.putNumber("Power", 100);

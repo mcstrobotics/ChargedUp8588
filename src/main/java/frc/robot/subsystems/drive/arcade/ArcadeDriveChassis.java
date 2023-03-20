@@ -6,7 +6,7 @@ Check out ArcadeDriveSubsystem and other subsystems.
 Date: 3/29/2021
  */
 
-package frc.robot.team8588.subsystems.drive.arcade;
+package frc.robot.subsystems.drive.arcade;
 
 
 import com.revrobotics.CANSparkMax;
