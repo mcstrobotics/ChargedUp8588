@@ -5,10 +5,8 @@
 package frc.robot;
 
 import frc.robot.commands.DriveCommand;
-import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.subsystems.drive.tank.TankDriveChassis;
-import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
-import frc.robot.subsystems.drive.tank.TankDriveInputs;
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.drive.arcade.*;
 import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import com.revrobotics.CANSparkMax;
@@ -33,7 +31,7 @@ public class RobotContainer {
 
   // HOTAS Flight Stick
   private HOTASJoystick flightStick = new HOTASJoystick(0); // change to correct port in driver station
-
+/*
   private DriveSubsystem driveSubsystem = new TankDriveSubsystem(
     new TankDriveChassis( // tank chassis as opposed to arcade or mecanum
       new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // first number corresponds with device id - may change
@@ -42,16 +40,25 @@ public class RobotContainer {
       new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless)
       ),
     new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
+*/
+    private DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
+    new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
+      new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
+      new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless), // front left
+      new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
+      new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
+      ),
+    new ArcadeDriveInputs(flightStick::getX, flightStick::getY, flightStick::getPOV)); // x and y of 
     
   private DriveCommand driveCommand = new DriveCommand(driveSubsystem); // issue the drive commands from the drive subsystem
   // eventually make an auton command
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
     new IntakeChassis(
-            new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless),
             new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
             new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless),
-            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless)
+            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless),
+            new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
     )
 );
 
@@ -80,7 +87,6 @@ public class RobotContainer {
     
     // Reset the ahrs when button 3 on flight stick is pressed (TODO)
     new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
-
   }
 
   /**

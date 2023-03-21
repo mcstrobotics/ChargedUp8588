@@ -2,6 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+/*
+ * Names: Ethan and Nishit 
+ * Started March 7
+ * A lot of the variables may be deleted soon depending on what approach we take :/ 
+ * I wish I could use dynamic memory, why couldn't we use C++!?!
+ * Uhhh... idk what else to put in this header file, just pray we dont run out of memory ig lolll :D 
+ */
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -43,7 +50,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc; 
+import org.opencv.imgproc.Imgproc; //why cant i use one import for all opencv functionality!?! 
 
 
 /**
@@ -101,45 +108,80 @@ public class Robot extends TimedRobot {
 
   String trajectoryJSON = "Paths/Test path to get to save zone.wpilib.json";
   Trajectory trajectory = new Trajectory();
+  private static int IMG_WIDTH;
+  private static int IMG_HEIGHT;
 
+  //i uncommented these out cuz i thought we didnt need them but these may come back :/ 
+  /* 
+  private static double FIELD_OF_VIEW; //feild of view of our camera(calculate manually)
+  private static int CAMERA_ANGLE; //angle the camera is mounted on
+  private static int CAMERA_HEIGHT; //how high up is our camera mounted? 
 
+  //help us with the positioning of our target 
+  private static double pitch; //pitch, important for distance judging
+  private static double yaw; //tbh idk where we would use the yaw :/ 
   private static int targetPosX; //use this to write poition in coordingates to coordinate grid to match driving/joystick coordinate plane
   private static int targetPosY; // likewise as aboove 
+*/
+  //Open CV/img processing stuff
+  private Mat feed; //let's have this mat have the camera feed
+  private Mat testMat; //mat for testing just in case :P 
+  Scalar boxColor = new Scalar(0, 255, 0); //color of drawn contours 
+  /*
+   * pretty much to see if an obstacle is directly in front of the robot we will use a specific range on the camera feed to see
+   * when an object is directly in the path/grabbable by intake so that way the robot can take action accordingly 
+   */
+  private static int frontCoordinate[] = {0,0}; //coordinate of range(top left)
+  private static int frontDimensions[] = {0,0}; //(width and height of that box)
+  private Scalar allianceLow;
+  private Scalar allianceHigh;
+  private Scalar allianceLineLow;
+  private Scalar allianceLineHigh; 
+  private Scalar allianceDockLow;
+  private Scalar allianceDockHigh;
 
-    //Open CV/img processing stuff
-    private Mat feed; //let's have this mat have the camera feed
-    Scalar boxColor = new Scalar(0, 255, 0); //color of drawn contours 
-    /*
-     * pretty much to see if an obstacle is directly in front of the robot we will use a specific range on the camera feed to see
-     * when an object is directly in the path/grabbable by intake so that way the robot can take action accordingly 
-     */
-    private static int frontCoordinate[] = {0,0}; //coordinate of range(top left)
-    private static int frontDimensions[] = {0,0}; //(width and height of that box)
-  
-    //hue saturation and lightness range(Scalar(hue, saturation, value))
-    //cone hue saturation lightness range (red)
-    private Scalar coneLower = new Scalar(0,0,0);
-    private Scalar coneHigher = new Scalar(0, 0, 0);
-    //cube hue saturation lightness range(purple)
-    private Scalar cubeLower = new Scalar(0,0,0);
-    private Scalar cubeHigher = new Scalar(0, 0, 0);
-    //red bumper and target lightness range (use aspect ratio to differentiate the objects)
-    private Scalar redLower = new Scalar(0,0,0);
-    private Scalar redHigher = new Scalar(0, 0, 0);
-    //identify blue bumper and target lightness range(again use aspect ratio to differentiate)
-    private Scalar blueLower = new Scalar(0,0,0);
-    private Scalar blueHigher = new Scalar(0, 0, 0);
-  
-    //aspect ratio values (width/height)
-    private double coneAspectRatio; //aspect ratio of cone
-    private double cubeAspectRatio; //aspect ratio of cube
-    private double robotAspectRatio;
-    private double lineAspectRatio;  //aspect ratio of lines(seperating home base)
-    private double payloadAspectRatio; //aspect ratio of the payload docking station(however we choose to identify it)
-  
-    //countour arraylists
-    ArrayList<Rect> payloadBoundingRect = new ArrayList<Rect>(); //cones and cubes
-    ArrayList<Rect> robotBoundingRect = new ArrayList<Rect>(); //other robots 
+  //hue saturation and lightness range(Scalar(hue, saturation, value))
+  //cone hue saturation lightness range (red)
+  private Scalar coneLower = new Scalar(0,0,0);
+  private Scalar coneHigher = new Scalar(0, 0, 0);
+  //cube hue saturation lightness range(purple)
+  private Scalar cubeLower = new Scalar(0,0,0);
+  private Scalar cubeHigher = new Scalar(0, 0, 0);
+  //red bumper and target lightness range (use aspect ratio to differentiate the objects)
+  private Scalar redLower = new Scalar(0,0,0);
+  private Scalar redHigher = new Scalar(0, 0, 0);
+  //identify blue bumper and target lightness range(again use aspect ratio to differentiate)
+  private Scalar blueLower = new Scalar(0,0,0);
+  private Scalar blueHigher = new Scalar(0, 0, 0);
+  //white(for bumpers) - ahahaha more crying for the robots memory :_)
+  private Scalar whiteLower = new Scalar(0, 0, 0);
+  private Scalar whiteHigher = new Scalar (0, 0, 0);
+  //line colors
+  private Scalar redLineLow = new Scalar(0,0,0);
+  private Scalar redLineHigh = new Scalar(0, 0, 0);
+  private Scalar blueLineLow = new Scalar(0, 0, 0);
+  private Scalar blueLineHigh = new Scalar(0, 0, 0);
+  //dock colors
+  private Scalar redDockLow = new Scalar(0,0,0);
+  private Scalar redDockHigh = new Scalar(0, 0, 0);
+  private Scalar blueDockLow = new Scalar(0, 0, 0);
+  private Scalar blueDockHigh = new Scalar(0, 0, 0);
+  private static double dockAspectRatio; 
+
+
+  //aspect ratio values (width/height)
+  private double coneAspectRatio = 8 / 12.5; //aspect ratio of cone (width could potentially be 6 depending on what is picked up)
+  private double cubeAspectRatio = 9.5 / 9.5; //aspect ratio of cube
+  private double robotAspectRatio;
+  private double lineAspectRatio;  //aspect ratio of lines(seperating home base)
+  private double payloadAspectRatio; //aspect ratio of the payload docking station(however we choose to identify it)
+
+  //countour arraylists
+  Rect[] payloadBoundingRect = new Rect[10]; //cones and cubes
+  Rect[] robotBoundingRect = new Rect[10]; //other robots 
+
+  //video thread (important)
+  Thread mentalPain; 
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -152,10 +194,11 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer(ahrs);
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
+    setAlliance("red");
     defaultLevel = ahrs.getRoll();
     currentLevel = ahrs.getRoll();
 
-    UsbCamera camera = CameraServer.startAutomaticCapture();
+    
 
     try {
       ahrs = new AHRS(SPI.Port.kMXP); //the kMXP port is the expansion port for the roborio
@@ -172,6 +215,29 @@ public class Robot extends TimedRobot {
    } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
    }
+
+   //vision thread stuff
+   mentalPain = new Thread(() -> {
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    //set the resolution of the camera
+    camera.setResolution(IMG_WIDTH, IMG_HEIGHT); //set the resolution
+    CvSink sink = CameraServer.getVideo(); //get input 
+    CvSource output = CameraServer.putVideo("DevilCam", IMG_WIDTH, IMG_HEIGHT); //display to dashboard
+
+    feed = new Mat(); 
+
+    while(!Thread.interrupted()){
+      if(sink.grabFrame(feed) == 0){ //check for interruptions
+        output.notifyError(sink.getError()); 
+        continue;
+      }
+
+      output.putFrame(feed); //display mat image to the dashboard
+    }
+    mentalPain.setDaemon(true);
+    mentalPain.start(); //start the thread run
+
+   });
   }
 
   /**
@@ -215,13 +281,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {}
-
+ 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonCommand();
     timer.reset();
     timer.start();
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -238,6 +305,13 @@ public class Robot extends TimedRobot {
             switch (currentPhase) {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
+                    //rotate
+                    Rect dropoff = findDrop();
+                    //find rotation coordinate
+                    int[] dropCenter = {(dropoff.x + dropoff.width)/2,(dropoff.y + dropoff.height)/2};
+                    double degrees = Math.toDegrees(Math.atan(Math.abs(IMG_HEIGHT - dropCenter[1]) / Math.abs(IMG_WIDTH - dropCenter[0]))); //for turn
+                    //drive
+                    //drop 
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -297,7 +371,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    // bot goes nyoom
+    driveCommand.execute(ahrs);
+
+    // send intake telemetry
+    //subsystemIntake.periodic();
+  }
 
   @Override
   public void testInit() {
@@ -317,14 +397,33 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {}
 
+  //assign our allience color 
+  public void setAlliance(String color){
+    if(color.equalsIgnoreCase("red")){
+      this.allianceHigh = redLower;
+      this.allianceHigh = redHigher; 
+      this.allianceLineLow = redLineLow;
+      this.allianceLineHigh = redLineHigh;
+      this.allianceDockLow = redDockLow;
+      this.allianceDockHigh = redDockHigh;
+    } else {
+      this.allianceHigh = blueLower;
+      this.allianceHigh = blueHigher;
+      this.allianceLineLow = blueLineLow;
+      this.allianceLineHigh = blueLineHigh;
+      this.allianceDockLow = blueDockLow;
+      this.allianceDockHigh = blueDockHigh;
+    }
+  }
   /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
   contours as rectangles to be drawn on the main image*/
-  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, ArrayList<Rect> rectangles){
-    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours
+  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, boolean checkRatio, Rect[] rectangles, boolean secondaryColor, Scalar lower2, Scalar higher2){
+    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours, use arraylist to avoid index out of bounds exception
     Mat hierarchy = new Mat(); //hierarchy, for the color isolation
     Mat dest = new Mat(); //destination of the color alterred image 
     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation, 
     erosion,opening, etc. Am i creating too many mats!?!*/
+    int listCount = 0; //array list 
 
     //color isolation
     Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image 
@@ -337,7 +436,7 @@ public class Robot extends TimedRobot {
     MatOfPoint2f[] contoursReg = new MatOfPoint2f[contours.size()]; //approx contour length,(good for boundng box)
     /*further get rid of noise/regularify the sides, 
     plus we need to convert our countors to a different format so we can create bounding rectangles! */
-
+    
     for(int i = 0; i < contours.size(); i++){
       double area = Imgproc.contourArea(contours.get(i));
 
@@ -351,23 +450,100 @@ public class Robot extends TimedRobot {
 
         //check if the desired aspect ratio is met
         double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
-        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05)){ //if the aspect ratio is close enough
-          rectangles.add(potential); //add it to the list! 
+        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05) || checkRatio == false){ //if the aspect ratio is close enough
+          if(listCount < rectangles.length){ //scan for overflow
+            if(secondaryColor == true){ //if we scanning for a secondary color within the bounds of potential, do that here
+              //praying for the robots memory rn, help me
+              ArrayList<MatOfPoint> contours2 = new ArrayList<MatOfPoint>(); //new array list of contours 
+              Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //reuse destination image to save memory 
+              Core.inRange(dest, lower2, higher2, dest); //scan for secondary color 
+              Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel); //remove noise
+              Imgproc.findContours(dest, contours2, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE); //get countours of white
+              for(int j = 0; j < contours2.size(); j++){ //run thru new array
+                double smolArea = Imgproc.contourArea(contours2.get(j)); //get area
+                if(smolArea > 100){ //remove excess noise
+                  Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(j).toArray())); //bounding rect it
+                  //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/ 
+                  
+                  //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
+                  if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list 
+                    rectangles[listCount] = potential; //add it to the list! 
+                    listCount ++; //increase the count 
+                    break; // break out of this loop
+                  }
+                }
+              }
+
+            } else { //otherwise we move on
+            rectangles[listCount] = potential; //add it to the list! 
+            listCount ++; //increase the count 
+            }
+          }
         }
       }
     }
   }
 
   public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for 
-    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, payloadBoundingRect); //scan for cubes
-    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, payloadBoundingRect); //scan for cones
-    this.detectContours(feed, redLower, redHigher, robotAspectRatio, robotBoundingRect); //scan for red team robots
-    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, robotBoundingRect); //scan for blue team robots
+    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cubes
+    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cones
+    this.detectContours(feed, redLower, redHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for red team robots
+    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for blue team robots
 
   }
-  /*periodically scan for obstacles to see if there are within the robot's range to be hit 
-  if the obstacle is a bumper(stand in place ig?) if it is a cone/cube move around it ig*/
-  public void scanObstacles(Mat img){
 
+  //find the drop off 
+  public Rect findDrop(){
+    Rect[] potentials = new Rect[10];
+    this.detectContours(this.feed, this.allianceDockLow, this.allianceDockHigh, this.dockAspectRatio, true, potentials, false, this.whiteLower, this.whiteHigher);
+    //find the biggest one (closest)
+    Rect biggest = potentials[0]; //start from index
+    for(Rect r: potentials){ //go thru array
+      if(biggest.width * biggest.height > r.width * r.height){
+        biggest = r;
+      }
+    }
+    return biggest;
+    
+  }
+
+  //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
+  public boolean scanStationaryObstacles(){
+    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect[i]; //i want to type less >:P 
+      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
+      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+        return true; 
+      }
+    }
+    return false; 
+  }
+
+  //same thing but for robots(we wnat to do different things if it is a robot or object)
+  public boolean scanRobots(){
+    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles 
+      Rect check = payloadBoundingRect[i]; //i want to type less >:P 
+      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1])) 
+      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+        return true; 
+      }
+    }
+    return false; 
+  }
+  
+ 
+  //all of these are soley for testing stuff
+  public void setMat(Mat m){ //set mat function
+    testMat = m; 
+  }
+
+  public Mat getMat(){ //get mat function
+    return testMat; 
   }
 }
