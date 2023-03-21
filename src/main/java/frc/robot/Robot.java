@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private final double autonPeriod = 15;
-  private AHRS ahrs;
+  private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private float defaultLevel = ahrs.getRoll();;
   private float currentLevel;
