@@ -64,7 +64,8 @@ public class RobotContainer {
 );
 */
 
-  private AutonCommand autonCommand;// new AutonCommand(driveSubsystem, intakeSubsystem);
+
+  private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
