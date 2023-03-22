@@ -62,7 +62,8 @@ public class HOTASJoystick extends Joystick{
     }
 
     public double getStickYAxis() {
-        return getRawAxis(STICK_AXIS_Y);
+        // this is inverted 
+        return -getRawAxis(STICK_AXIS_Y);
     }
 
     public double getSmallJoystickX() {

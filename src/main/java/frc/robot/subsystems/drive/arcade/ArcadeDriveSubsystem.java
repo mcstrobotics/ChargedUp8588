@@ -143,30 +143,16 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
 
         double triggerThreshold = 0.3;
 
-        // Vary power limits based on state of a trigger 
-        if (pov == 0) { // 25% power
-            forward /= 4;
-            turn /= 4;
-            SmartDashboard.putNumber("Power", 25);
-        } else if (pov == 4) { // 100% power
-            forward /= 1;
-            turn /= 1;
-            SmartDashboard.putNumber("Power", 100);
-        } else { // default
-            forward /= 2;
-            turn /= 2;
-            SmartDashboard.putNumber("Power", 50);
-        }
 
         //forward = forward * forward * forward;
         //turn = turn * turn * turn;
         // curve movement
 
-        chassis.getBackLeft().set(forward - turn);
-        chassis.getFrontLeft().set(forward - turn);
+        chassis.getBackLeft().set(-(forward - turn));
+        chassis.getFrontLeft().set(-(forward - turn));
 
-        chassis.getBackRight().set(-(forward + turn));
-        chassis.getFrontRight().set(-(forward + turn));
+        chassis.getBackRight().set((forward - turn));
+        chassis.getFrontRight().set(-(forward - turn));
 
         /* SmartDashboard.putNumber("Front Right ESC: ", chassis.getFrontRight().getMotorTemperature());
         SmartDashboard.putNumber("Front Left ESC: ", chassis.getFrontLeft().getMotorTemperature());
