@@ -106,8 +106,8 @@ public class Robot extends TimedRobot {
 
   private AutonomousPhase currentPhase;
 
-  String trajectoryJSON = "Paths/Test path to get to save zone.wpilib.json";
-  Trajectory trajectory = new Trajectory();
+  //String trajectoryJSON = "";
+  //Trajectory trajectory = new Trajectory();
   private static int IMG_WIDTH;
   private static int IMG_HEIGHT;
 
@@ -191,7 +191,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(ahrs);
+    m_robotContainer = new RobotContainer();
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
     setAlliance("red");
@@ -209,13 +209,15 @@ public class Robot extends TimedRobot {
       DriverStation.reportError("Error creating navx sensor object! " + ex.getMessage(), true);
     }
 
+    /*
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
       trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
    } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
    }
-
+   */
+/* 
    //vision thread stuff
    mentalPain = new Thread(() -> {
     UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -237,7 +239,7 @@ public class Robot extends TimedRobot {
     mentalPain.setDaemon(true);
     mentalPain.start(); //start the thread run
 
-   });
+   }); */
   }
 
   /**
@@ -289,6 +291,10 @@ public class Robot extends TimedRobot {
     timer.reset();
     timer.start();
 
+    if (driveCommand != null) {
+      driveCommand.cancel();
+  }
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -306,12 +312,12 @@ public class Robot extends TimedRobot {
                 case PHASE1_DROP_PAYLOAD:
                     // do any necessary pre-phase setup
                     //rotate
-                    Rect dropoff = findDrop();
+                  /*   Rect dropoff = findDrop();
                     //find rotation coordinate
                     int[] dropCenter = {(dropoff.x + dropoff.width)/2,(dropoff.y + dropoff.height)/2};
                     double degrees = Math.toDegrees(Math.atan(Math.abs(IMG_HEIGHT - dropCenter[1]) / Math.abs(IMG_WIDTH - dropCenter[0]))); //for turn
                     //drive
-                    //drop 
+                    //drop */
                     currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
                     break;
                     
@@ -366,6 +372,12 @@ public class Robot extends TimedRobot {
     // this line or comment it out.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+    }
+
+    driveCommand = m_robotContainer.getDriveCommand();
+    if (driveCommand != null)
+    {
+        driveCommand.schedule();
     }
   }
 

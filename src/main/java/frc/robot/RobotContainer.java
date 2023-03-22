@@ -53,6 +53,7 @@ public class RobotContainer {
   private DriveCommand driveCommand = new DriveCommand(driveSubsystem); // issue the drive commands from the drive subsystem
   // eventually make an auton command
 
+  /* 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
     new IntakeChassis(
             new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
@@ -61,13 +62,14 @@ public class RobotContainer {
             new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
     )
 );
+*/
 
-  private AutonCommand autonCommand = new AutonCommand(driveSubsystem, intakeSubsystem);
+  private AutonCommand autonCommand;// new AutonCommand(driveSubsystem, intakeSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer(AHRS ahrs) {
+  public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings(ahrs);
+    //configureBindings(ahrs);
 
   }
 
