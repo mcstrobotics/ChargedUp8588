@@ -349,7 +349,11 @@ public class Robot extends TimedRobot {
                     // if an obstacle is identified, go around it and continue on the path
                     currentPhase = AutonomousPhase.PHASE6_LEVEL;
                     break;
-                
+
+
+
+
+              /*  TODO: Test to see if the math in this is valid or not
                 case PHASE6_LEVEL:
                 if (currentLevel < defaultLevel) {
                   speed *= (1 - pidOutput);
@@ -360,6 +364,7 @@ public class Robot extends TimedRobot {
                   }
                     
       }
+                */
     }
   }
 }
