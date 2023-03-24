@@ -64,6 +64,10 @@ public class RobotContainer {
 );
 */
 
+  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
+    new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
+    new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless))); // intake
+
   private AutonCommand autonCommand;// new AutonCommand(driveSubsystem, intakeSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
