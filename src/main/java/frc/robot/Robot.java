@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
   private double speed;
   private double pidOutput;
 
-  private double startTime;
+  double startTime;
 
 
   private enum AutonomousPhase {
@@ -279,8 +279,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    AutonCommand autonCommand = new AutonCommand(m_robotContainer.getDriveSub(), startTime);
-    m_autonomousCommand = autonCommand;
+    //AutonCommand autonCommand = new AutonCommand(m_robotContainer.getDriveSub(), startTime);
+    m_autonomousCommand = m_robotContainer.getAutonCommand();
     timer.reset();
     timer.start();
     startTime = timer.get();

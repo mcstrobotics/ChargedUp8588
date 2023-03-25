@@ -63,7 +63,7 @@ public class RobotContainer {
 
   Robot obj = new Robot(); 
 
-  //private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
+  private AutonCommand autonCommand = new AutonCommand(driveSubsystem, obj.startTime);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -125,8 +125,8 @@ public class RobotContainer {
   }
 
 
-//   public AutonCommand getAutonCommand() {
-//     // autonCommand will run in autonomous
-//     return autonCommand;
-// }
+  public AutonCommand getAutonCommand() {
+    // autonCommand will run in autonomous
+    return autonCommand;
+}
 }
