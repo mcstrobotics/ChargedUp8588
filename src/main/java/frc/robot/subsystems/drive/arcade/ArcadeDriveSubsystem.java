@@ -151,8 +151,8 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         chassis.getBackLeft().set(-(forward - turn));
         chassis.getFrontLeft().set(-(forward - turn));
 
-        chassis.getBackRight().set((forward - turn));
-        chassis.getFrontRight().set(-(forward - turn));
+        chassis.getBackRight().set((forward + turn));
+        chassis.getFrontRight().set(-(forward + turn));
 
         /* SmartDashboard.putNumber("Front Right ESC: ", chassis.getFrontRight().getMotorTemperature());
         SmartDashboard.putNumber("Front Left ESC: ", chassis.getFrontLeft().getMotorTemperature());

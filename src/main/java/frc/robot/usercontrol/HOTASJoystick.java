@@ -57,13 +57,25 @@ public class HOTASJoystick extends Joystick{
 
     // get values for all of the joysticks and buttons
 
+    // sigmoid
+    public double applyExpo(double input) {
+        double scaled = (Math.pow(input, 3));
+
+        if (scaled < -1)
+            scaled = -1;
+        else if (scaled > 1)
+            scaled = 1;
+
+        return scaled;
+    }
+
     public double getStickXAxis() {
         return getRawAxis(STICK_AXIS_X);
     }
 
     public double getStickYAxis() {
         // this is inverted 
-        return -getRawAxis(STICK_AXIS_Y);
+        return applyExpo(-getRawAxis(STICK_AXIS_Y));
     }
 
     public double getSmallJoystickX() {
