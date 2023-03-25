@@ -21,7 +21,7 @@ public class IntakeCommand extends CommandBase {
 
     @Override
     public void execute() {
-        subsystem.setPowers();
+        //subsystem.setPowers();
     }
 
     @Override

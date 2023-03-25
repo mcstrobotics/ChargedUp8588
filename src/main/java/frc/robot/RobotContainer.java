@@ -5,11 +5,9 @@
 package frc.robot;
 
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.arcade.*;
 import frc.robot.subsystems.intake.IntakeChassis;
-import frc.robot.subsystems.intake.IntakeInputs;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
@@ -33,7 +31,6 @@ public class RobotContainer {
 
   // HOTAS Flight Stick
   private HOTASJoystick flightStick = new HOTASJoystick(0); // change to correct port in driver station
-  private HOTASJoystick joystick2 = new HOTASJoystick(1);
 /*
   private DriveSubsystem driveSubsystem = new TankDriveSubsystem(
     new TankDriveChassis( // tank chassis as opposed to arcade or mecanum
@@ -42,7 +39,7 @@ public class RobotContainer {
       new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
       new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless)
       ),
-    new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of
+    new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
 */
     private DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
     new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
@@ -51,47 +48,9 @@ public class RobotContainer {
       new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
       new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
       ),
-    new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getY, flightStick::getPOV)); // x and y of
-
-    /* 
-  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
-          new IntakeChassis(
-                  new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
-                  new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless)
-          ),
-          new IntakeInputs(
-                  () -> {
-                      double power = joystick2.getRawAxis(3) - 0.5;
-                      if (power == 0) {
-                          return IntakeInputs.MoveStatus.STOP;
-                      } else if (power > 0) {
-                          return IntakeInputs.MoveStatus.FRONT;
-                      } else {
-                        return IntakeInputs.MoveStatus.BACK;
-                      }
-                  },
-                  () -> {
-                     if (joystick2.getRawButton(3)) {
-                      return IntakeInputs.MoveStatus.FRONT;
-                    } else if (joystick2.getRawButton(4)){
-                      return IntakeInputs.MoveStatus.BACK;
-                    } else {
-                       return IntakeInputs.MoveStatus.STOP;
-                     }
-                  }
-          )
-  );
-  */
-
-  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
-    new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
-    new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless))); // intake
+    new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getY, flightStick::getPOV)); // x and y of 
 
 
-  private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands from the drive subsystem
-  // eventually make an auton command
-
-  /*
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
     new IntakeChassis(
             new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
@@ -100,30 +59,10 @@ public class RobotContainer {
             new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
     )
 );
-*/
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of 8d0cb48... Revert "Merge branch 'master' of https://github.com/mcstrobotics/ChargedUp8588 into master"
-  private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
-=======
-
-  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
-    new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
-    new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless))); // intake
+private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands from the drive subsystem
+  // eventually make an auton command
 
   private AutonCommand autonCommand;// new AutonCommand(driveSubsystem, intakeSubsystem);
->>>>>>> 9408396... intake stuff
-<<<<<<< HEAD
-=======
->>>>>>> parent of 8c5e0bf... Merge branch 'master' of https://github.com/mcstrobotics/ChargedUp8588 into master
-=======
-  private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
->>>>>>> parent of 28a918d... intake stuff
-=======
->>>>>>> parent of 8d0cb48... Revert "Merge branch 'master' of https://github.com/mcstrobotics/ChargedUp8588 into master"
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -145,9 +84,9 @@ public class RobotContainer {
     // Schedule commands tied to buttons
 
     // for each button number (corresponds to a button), we are going to run a command / method
-
+    
     // Reset the ahrs when button 3 on flight stick is pressed (TODO)
-    new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset));
+    new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
   }
 
   /**
