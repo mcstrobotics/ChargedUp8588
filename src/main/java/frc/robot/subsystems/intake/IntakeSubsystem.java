@@ -16,9 +16,9 @@ public class IntakeSubsystem implements Subsystem {
         this.inputs = inputs;
     }
 
-    public IntakeSubsystem(IntakeChassis chassis){
-        this.chassis = chassis;
-    }
+    // public IntakeSubsystem(IntakeChassis chassis){
+    //     this.chassis = chassis;
+    // }
 
     @Override
     public void periodic() {
