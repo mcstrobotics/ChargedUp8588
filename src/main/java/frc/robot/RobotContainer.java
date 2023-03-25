@@ -56,7 +56,7 @@ public class RobotContainer {
       new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
       new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless)
       ),
-    new IntakeInputs(flightStick::getAxisZRotate, flightStick::getY)); // intake
+    new IntakeInputs(flightStick::getCircleDPadUp, flightStick::getCircleDPadDown, flightStick::getPlusDPadUp, flightStick::getPlusDPadDown)); // intake
     private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands from the drive subsystem
     private IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);
   // eventually make an auton command
