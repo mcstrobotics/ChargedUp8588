@@ -65,6 +65,7 @@ public class RobotContainer {
 */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
 =======
 =======
@@ -79,6 +80,9 @@ public class RobotContainer {
 >>>>>>> 9408396... intake stuff
 =======
 >>>>>>> parent of 8c5e0bf... Merge branch 'master' of https://github.com/mcstrobotics/ChargedUp8588 into master
+=======
+  private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
+>>>>>>> parent of 28a918d... intake stuff
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
