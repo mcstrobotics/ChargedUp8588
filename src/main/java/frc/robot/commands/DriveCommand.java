@@ -28,7 +28,7 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
         subsystem.setPowers();
-        //intake.setPowers();
+        intake.setPowers();
     }
 
     public void execute(AHRS ahrs) {subsystem.setPowersFO(ahrs);}

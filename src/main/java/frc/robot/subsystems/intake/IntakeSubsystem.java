@@ -34,6 +34,14 @@ public class IntakeSubsystem implements Subsystem {
         chassis.getIntake().set(0);
     }
 
+    public void stopElevator() {
+        chassis.getArm().set(0);
+    }
+
+    public void stopArm() {
+        chassis.getIntake().set(0);
+    }
+
     public void intakeIn() {
         chassis.getIntake().set(intakePower);
     }
@@ -49,5 +57,37 @@ public class IntakeSubsystem implements Subsystem {
 
     public void armDown() {
         chassis.getArm().set(-armPower);
+    }
+
+    public void setPowers() {
+        // utilize each function based on inputs
+
+        // arm / elevator
+        boolean elevatorUp = inputs.elevatorUp.get();
+        boolean elevatorDown = inputs.elevatorDown.get();
+
+        // intake
+        boolean armUp = inputs.armUp.get();
+        boolean armDown = inputs.armDown.get();
+
+        if (elevatorUp) {
+            armUp();
+        }
+        else if (elevatorDown) {
+            armDown();
+        }
+        else {
+            stopElevator();
+        }
+
+        if (armUp) {
+            intakeIn();
+        }
+        else if (armDown) {
+            intakeOut();
+        }
+        else {
+            stopArm();
+        }
     }
 }

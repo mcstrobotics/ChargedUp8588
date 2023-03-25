@@ -103,6 +103,10 @@ public class RobotContainer {
     return flightStick;
   }
 
+  public IntakeSubsystem getIntakeSubsystem() {
+    return intakeSubsystem;
+  }
+
   /**
   * Use this to pass the teleop command to the main {@link Robot} class.
   *
