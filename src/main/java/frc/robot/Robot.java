@@ -248,6 +248,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    /*
     currentLevel = ahrs.getRoll();
 
     // Calculate the tilt angle with respect to the reference orientation
@@ -267,6 +269,7 @@ public class Robot extends TimedRobot {
     integral += error * 0.02; // integrate over 20ms (default loop time)
     double derivative = (error - previousError) / 0.02; // differentiate over 20ms
     pidOutput = kP * error + kI * integral + kD * derivative;
+    */
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -389,7 +392,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // bot goes nyoom
-    driveCommand.execute(ahrs);
+    driveCommand.execute();
 
     // send intake telemetry
     //subsystemIntake.periodic();
