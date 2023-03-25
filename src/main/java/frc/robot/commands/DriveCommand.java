@@ -9,22 +9,26 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.DriveDirection;
 import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class DriveCommand extends CommandBase {
 
     private DriveSubsystem subsystem;
+    private IntakeSubsystem intake;
     double power = 0.0;
     DriveDirection direction = DriveDirection.FORWARD;
     double lPower = 0.0;
     double rPower = 0.0;
-    public DriveCommand(DriveSubsystem subsystem) {
+    public DriveCommand(DriveSubsystem subsystem, IntakeSubsystem intake) {
         this.subsystem = subsystem;
-        addRequirements(subsystem);
+        this.intake = intake;
+        addRequirements(subsystem, intake);
     }
 
     @Override
     public void execute() {
         subsystem.setPowers();
+        intake.setPowers();
     }
 
     public void execute(AHRS ahrs) {subsystem.setPowersFO(ahrs);}
