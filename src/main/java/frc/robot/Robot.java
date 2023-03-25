@@ -289,87 +289,87 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonCommand();
-    timer.reset();
-    timer.start();
+    // m_autonomousCommand = m_robotContainer.getAutonCommand();
+    // timer.reset();
+  //   timer.start();
 
-    if (driveCommand != null) {
-      driveCommand.cancel();
-  }
+  //   if (driveCommand != null) {
+  //     driveCommand.cancel();
+  // }
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+  //   // schedule the autonomous command (example)
+  //   if (m_autonomousCommand != null) {
+  //     m_autonomousCommand.schedule();
+  //   }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    double timeElapsed = timer.get();
+  //   double timeElapsed = timer.get();
 
 
-    if (timeElapsed < autonPeriod) {
-            switch (currentPhase) {
-                case PHASE1_DROP_PAYLOAD:
-                    // do any necessary pre-phase setup
-                    //rotate
-                  /*   Rect dropoff = findDrop();
-                    //find rotation coordinate
-                    int[] dropCenter = {(dropoff.x + dropoff.width)/2,(dropoff.y + dropoff.height)/2};
-                    double degrees = Math.toDegrees(Math.atan(Math.abs(IMG_HEIGHT - dropCenter[1]) / Math.abs(IMG_WIDTH - dropCenter[0]))); //for turn
-                    //drive
-                    //drop */
-                    currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
-                    break;
+  //   if (timeElapsed < autonPeriod) {
+  //           switch (currentPhase) {
+  //               case PHASE1_DROP_PAYLOAD:
+  //                   // do any necessary pre-phase setup
+  //                   //rotate
+  //                 /*   Rect dropoff = findDrop();
+  //                   //find rotation coordinate
+  //                   int[] dropCenter = {(dropoff.x + dropoff.width)/2,(dropoff.y + dropoff.height)/2};
+  //                   double degrees = Math.toDegrees(Math.atan(Math.abs(IMG_HEIGHT - dropCenter[1]) / Math.abs(IMG_WIDTH - dropCenter[0]))); //for turn
+  //                   //drive
+  //                   //drop */
+  //                   currentPhase = AutonomousPhase.PHASE2_MOVE_OUT_OF_SAFE_ZONE;
+  //                   break;
 
-                case PHASE2_MOVE_OUT_OF_SAFE_ZONE:
-                    // locate the dock pad
-                    // move toward the dock pad
-                    // drop the payload into the dock
-                    currentPhase = AutonomousPhase.PHASE3_LOCATE_DOCK;
-                    break;
+  //               case PHASE2_MOVE_OUT_OF_SAFE_ZONE:
+  //                   // locate the dock pad
+  //                   // move toward the dock pad
+  //                   // drop the payload into the dock
+  //                   currentPhase = AutonomousPhase.PHASE3_LOCATE_DOCK;
+  //                   break;
 
-                case PHASE3_LOCATE_DOCK:
-                    // re-orientate if necessary
-                    // move out of the safe zone
-                    // periodically check for obstacles
-                    // if an obstacle is identified, go around it and continue on the path
-                    currentPhase = AutonomousPhase.PHASE4_MOVE_TOWARD_DOCK;
-                    break;
+  //               case PHASE3_LOCATE_DOCK:
+  //                   // re-orientate if necessary
+  //                   // move out of the safe zone
+  //                   // periodically check for obstacles
+  //                   // if an obstacle is identified, go around it and continue on the path
+  //                   currentPhase = AutonomousPhase.PHASE4_MOVE_TOWARD_DOCK;
+  //                   break;
 
-                case PHASE4_MOVE_TOWARD_DOCK:
-                    // locate the dock using the camera
-                    // identify corners and sides
-                    // generate a path to the dock
-                    currentPhase = AutonomousPhase.PHASE5_GET_ON_DOCK;
-                    break;
+  //               case PHASE4_MOVE_TOWARD_DOCK:
+  //                   // locate the dock using the camera
+  //                   // identify corners and sides
+  //                   // generate a path to the dock
+  //                   currentPhase = AutonomousPhase.PHASE5_GET_ON_DOCK;
+  //                   break;
 
-                case PHASE5_GET_ON_DOCK:
-                    // move along the path to the dock
-                    // periodically check for obstacles
-                    // if an obstacle is identified, go around it and continue on the path
-                    currentPhase = AutonomousPhase.PHASE6_LEVEL;
-                    break;
-
-
+  //               case PHASE5_GET_ON_DOCK:
+  //                   // move along the path to the dock
+  //                   // periodically check for obstacles
+  //                   // if an obstacle is identified, go around it and continue on the path
+  //                   currentPhase = AutonomousPhase.PHASE6_LEVEL;
+  //                   break;
 
 
 
-              /*  TODO: Test to see if the math in this is valid or not
-                case PHASE6_LEVEL:
-                if (currentLevel < defaultLevel) {
-                  speed *= (1 - pidOutput);
-                  tankSubsystem.drive(speed, DriveDirection.FORWARD);
-                  if (currentLevel > defaultLevel) {
-                    speed *= (1 + pidOutput);
-                    tankSubsystem.drive(speed, DriveDirection.BACKWARD);
-                  }
 
-      }
-                */
-    }
-  }
+
+  //             /*  TODO: Test to see if the math in this is valid or not
+  //               case PHASE6_LEVEL:
+  //               if (currentLevel < defaultLevel) {
+  //                 speed *= (1 - pidOutput);
+  //                 tankSubsystem.drive(speed, DriveDirection.FORWARD);
+  //                 if (currentLevel > defaultLevel) {
+  //                   speed *= (1 + pidOutput);
+  //                   tankSubsystem.drive(speed, DriveDirection.BACKWARD);
+  //                 }
+
+  //     }
+  //               */
+  //   }
+  // }
 }
 
   @Override
