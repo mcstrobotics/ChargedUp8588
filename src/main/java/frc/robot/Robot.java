@@ -11,47 +11,36 @@
  */
 package frc.robot;
 
+import java.util.ArrayList;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc; //why cant i use one import for all opencv functionality!?!
+
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
-import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.usercontrol.HOTASJoystick;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-
-import edu.wpi.first.math.trajectory.*;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-
-import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.subsystems.drive.DriveDirection;
-import frc.robot.subsystems.drive.tank.TankDriveInputs;
-import frc.robot.subsystems.drive.tank.TankDriveChassis;
-import frc.robot.subsystems.drive.tank.TankDriveSubsystem;
 import frc.robot.commands.DriveCommand;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.MjpegServer;
-import org.opencv.core.Rect;
-import org.opencv.core.Core;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc; //why cant i use one import for all opencv functionality!?!
+import frc.robot.commands.AutonCommand;
+import frc.robot.subsystems.drive.DriveDirection;
+import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.arcade.ArcadeDriveChassis;
+import frc.robot.subsystems.drive.arcade.ArcadeDriveInputs;
+import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.usercontrol.HOTASJoystick;
 
 
 /**
@@ -62,22 +51,19 @@ import org.opencv.imgproc.Imgproc; //why cant i use one import for all opencv fu
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private Command m_drivesubCommand;
 
   private RobotContainer m_robotContainer;
+  private RobotContainer m_driveSubsystem;
+
 
   private final double autonPeriod = 15;
+  private DriveSubsystem driveSubsystem;
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private float defaultLevel = ahrs.getRoll();;
   private float currentLevel;
-
-  private DriveSubsystem driveSubsystem;
-  private IntakeSubsystem intakeSubsystem;
-  private DriveDirection driveDirection;
   private DriveCommand driveCommand;
-  private TankDriveInputs tankInputs;
-  private TankDriveChassis tankhassis;
-  private TankDriveSubsystem tankSubsystem;
 
   // Define the reference orientation and the tilt angle threshold
   private double tiltThreshold = 5; // in degrees
@@ -95,6 +81,8 @@ public class Robot extends TimedRobot {
 
   private double speed;
   private double pidOutput;
+
+  private double startTime;
 
 
   private enum AutonomousPhase {
@@ -185,6 +173,7 @@ public class Robot extends TimedRobot {
   //video thread (important)
   Thread mentalPain;
 
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -194,6 +183,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    driveSubsystem = m_robotContainer.getDriveSubsystem();
     timer = new Timer();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
     setAlliance("red");
@@ -289,24 +279,28 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    // m_autonomousCommand = m_robotContainer.getAutonCommand();
-    // timer.reset();
-  //   timer.start();
+    AutonCommand autonCommand = new AutonCommand(m_robotContainer.getDriveSub(), startTime);
+    m_autonomousCommand = autonCommand;
+    timer.reset();
+    timer.start();
+    startTime = timer.get();
 
-  //   if (driveCommand != null) {
-  //     driveCommand.cancel();
-  // }
+    if (driveCommand != null) {
+      driveCommand.cancel();
+    }
 
-  //   // schedule the autonomous command (example)
-  //   if (m_autonomousCommand != null) {
-  //     m_autonomousCommand.schedule();
-  //   }
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
+    if (m_drivesubCommand != null) {
+      m_drivesubCommand.schedule();
+    }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-  //   double timeElapsed = timer.get();
 
 
   //   if (timeElapsed < autonPeriod) {
@@ -359,10 +353,10 @@ public class Robot extends TimedRobot {
   //             /*  TODO: Test to see if the math in this is valid or not
   //               case PHASE6_LEVEL:
   //               if (currentLevel < defaultLevel) {
-  //                 speed *= (1 - pidOutput);
+  //                 speed *= (-pidOutput);
   //                 tankSubsystem.drive(speed, DriveDirection.FORWARD);
   //                 if (currentLevel > defaultLevel) {
-  //                   speed *= (1 + pidOutput);
+  //                   speed *= (pidOutput);
   //                   tankSubsystem.drive(speed, DriveDirection.BACKWARD);
   //                 }
 
@@ -371,6 +365,7 @@ public class Robot extends TimedRobot {
   //   }
   // }
 }
+
 
   @Override
   public void teleopInit() {

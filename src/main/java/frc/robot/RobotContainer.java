@@ -9,11 +9,12 @@ import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.arcade.*;
 import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.IntakeInputs;
+import frc.robot.commands.IntakeCommand;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import frc.robot.usercontrol.HOTASJoystick;
 import edu.wpi.first.wpilibj2.command.*;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -41,7 +42,7 @@ public class RobotContainer {
       ),
     new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
 */
-    private DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
+    public DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
     new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
       new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
       new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless), // front left
@@ -51,18 +52,18 @@ public class RobotContainer {
     new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getY, flightStick::getPOV)); // x and y of 
 
 
-  private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
-    new IntakeChassis(
-            new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless),
-            new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless),
-            new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless),
-            new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless)
-    )
-);
-private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands from the drive subsystem
+    private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
+      new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
+      new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless)
+      ),
+    new IntakeInputs(flightStick::getAxisZRotate, flightStick::getY)); // intake
+    private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands from the drive subsystem
+    private IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);
   // eventually make an auton command
 
-  private AutonCommand autonCommand;// new AutonCommand(driveSubsystem, intakeSubsystem);
+  Robot obj = new Robot(); 
+
+  //private AutonCommand autonCommand = new AutonCommand(driveSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -113,8 +114,15 @@ private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsy
     return driveCommand;
   }
 
-  public AutonCommand getAutonCommand() {
-    // autonCommand will run in autonomous
-    return autonCommand;
-}
+  public DriveSubsystem getDriveSub()
+  {
+    // driveCommand will run in teleop
+    return driveSubsystem;
+  }
+
+
+//   public AutonCommand getAutonCommand() {
+//     // autonCommand will run in autonomous
+//     return autonCommand;
+// }
 }

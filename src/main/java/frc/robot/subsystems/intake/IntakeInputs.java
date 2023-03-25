@@ -1,6 +1,3 @@
-/*
-* THIS CLASS IS NOT BEING USED
-*/
 
 package frc.robot.subsystems.intake;
 
@@ -13,10 +10,10 @@ public class IntakeInputs {
         BACK,
         STOP
     }
-    public final Supplier<MoveStatus> elevator;
+    public final Supplier<Double> elevator;
 
-    public final Supplier<MoveStatus> arm;
-    public IntakeInputs(Supplier<MoveStatus> elevator, Supplier<MoveStatus> arm){
+    public final Supplier<Double> arm;
+    public IntakeInputs(Supplier<Double> elevator, Supplier<Double> arm){
         this.elevator = elevator;
         this.arm = arm;
     }
