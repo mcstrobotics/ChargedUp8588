@@ -9,11 +9,9 @@ public class IntakeSubsystem implements Subsystem {
     private final double armPower = 0.5;
 
     private IntakeChassis chassis;
-    private IntakeInputs inputs;
 
-    public IntakeSubsystem(IntakeChassis chassis, IntakeInputs inputs){
+    public IntakeSubsystem(IntakeChassis chassis){
         this.chassis = chassis;
-        this.inputs = inputs;
     }
 
     @Override
@@ -21,6 +19,7 @@ public class IntakeSubsystem implements Subsystem {
         //SmartDashboard.putNumber("Shooter RPM over time", Math.abs(chassis.getShooter().getEncoder().getVelocity()));
         //SmartDashboard.putNumber("Current Shooter RPM for Dial", Math.abs(chassis.getShooter().getEncoder().getVelocity()));
         //SmartDashboard.putNumber("Shooter Temperature", chassis.getShooter().getMotorTemperature());
+<<<<<<< HEAD
 
     }
 
@@ -45,6 +44,24 @@ public class IntakeSubsystem implements Subsystem {
 
     public void armDown() {
         chassis.getArm().set(-armPower);
+=======
+
+    }
+
+    // Stops all two motors in the arm
+    public void stopAll() {
+        chassis.getArm().set(0);
+        chassis.getIntake().set(0);
+    }
+
+    public void intakeIn() {
+        chassis.getIntake().set(intakePower);
+    }
+
+    public void intakeOut() {
+        chassis.getIntake().set(0.35);
+
+>>>>>>> parent of 8c5e0bf... Merge branch 'master' of https://github.com/mcstrobotics/ChargedUp8588 into master
     }
 
     public void armUp() {
