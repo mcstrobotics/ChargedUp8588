@@ -250,23 +250,23 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     currentLevel = ahrs.getRoll();
 
-    // Calculate the tilt angle with respect to the reference orientation
-    double tiltAngle = currentLevel - defaultLevel;
-    // Adjust the robot's movements based on the tilt angle
-    double forwardSpeed = forwardSpeedLimit;
-    double backwardSpeed = backwardSpeedLimit;
-    if (tiltAngle > tiltThreshold) {
-      forwardSpeed = 0;
-    }
-    else if (tiltAngle < -tiltThreshold) {
-      backwardSpeed = 0;
-    }
+    // // Calculate the tilt angle with respect to the reference orientation
+    // double tiltAngle = currentLevel - defaultLevel;
+    // // Adjust the robot's movements based on the tilt angle
+    // double forwardSpeed = forwardSpeedLimit;
+    // double backwardSpeed = backwardSpeedLimit;
+    // if (tiltAngle > tiltThreshold) {
+    //   forwardSpeed = 0;
+    // }
+    // else if (tiltAngle < -tiltThreshold) {
+    //   backwardSpeed = 0;
+    // }
 
-    // Fine-tune the robot's movements using a PID controller
-    double error = tiltAngle;
-    integral += error * 0.02; // integrate over 20ms (default loop time)
-    double derivative = (error - previousError) / 0.02; // differentiate over 20ms
-    pidOutput = kP * error + kI * integral + kD * derivative;
+    // // Fine-tune the robot's movements using a PID controller
+    // double error = tiltAngle;
+    // integral += error * 0.02; // integrate over 20ms (default loop time)
+    // double derivative = (error - previousError) / 0.02; // differentiate over 20ms
+    // pidOutput = kP * error + kI * integral + kD * derivative;
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

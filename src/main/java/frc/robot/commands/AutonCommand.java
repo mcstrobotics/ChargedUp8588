@@ -31,9 +31,9 @@ public class AutonCommand extends SequentialCommandGroup {
                     boolean a = false;
                     timer = new Timer();
                     timer.start();
-                    while (timer.get() < 2) {
-                        subsystem.halfPower();
-                    }
+                    // while (timer.get() < 2) {
+                    //     subsystem.halfPower();
+                    // }
                 double timeElapsed = timer.get() - startTime;
                 if (timeElapsed < 3) {
                     subsystem.drive(0.6, DriveDirection.FORWARD);
