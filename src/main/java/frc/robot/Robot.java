@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.AutonCommand;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.drive.DriveDirection;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.arcade.ArcadeDriveChassis;
@@ -54,7 +55,6 @@ public class Robot extends TimedRobot {
   private Command m_drivesubCommand;
 
   private RobotContainer m_robotContainer;
-  private RobotContainer m_driveSubsystem;
 
 
   private final double autonPeriod = 15;
@@ -64,6 +64,7 @@ public class Robot extends TimedRobot {
   private float defaultLevel = ahrs.getRoll();;
   private float currentLevel;
   private DriveCommand driveCommand;
+  private IntakeCommand intakeCommand;
 
   // Define the reference orientation and the tilt angle threshold
   private double tiltThreshold = 5; // in degrees
@@ -185,6 +186,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     driveSubsystem = m_robotContainer.getDriveSubsystem();
     timer = new Timer();
+    startTime = timer.get();
     currentPhase = AutonomousPhase.PHASE1_DROP_PAYLOAD;
     setAlliance("red");
     defaultLevel = ahrs.getRoll();
@@ -248,7 +250,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    currentLevel = ahrs.getRoll();
+    // currentLevel = ahrs.getRoll();
+    
 
     // // Calculate the tilt angle with respect to the reference orientation
     // double tiltAngle = currentLevel - defaultLevel;
@@ -283,7 +286,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonCommand();
     timer.reset();
     timer.start();
-    startTime = timer.get();
+    //startTime = timer.get();
 
     if (driveCommand != null) {
       driveCommand.cancel();
@@ -293,15 +296,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    if (m_drivesubCommand != null) {
-      m_drivesubCommand.schedule();
-    }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-
+    m_autonomousCommand.execute();
 
   //   if (timeElapsed < autonPeriod) {
   //           switch (currentPhase) {
@@ -383,13 +383,23 @@ public class Robot extends TimedRobot {
         driveCommand.schedule();
 
     }
+
+
+    intakeCommand = m_robotContainer.getIntakeCommand();
+    if (intakeCommand != null)
+    {
+        intakeCommand.schedule();
+
+    }
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     // bot goes nyoom
-    driveCommand.execute(ahrs);
+    //driveCommand.execute();
+    m_robotContainer.driveSubsystem.drive();
+    intakeCommand.execute();
 
     // send intake telemetry
     //subsystemIntake.periodic();
@@ -431,127 +441,127 @@ public class Robot extends TimedRobot {
       this.allianceDockHigh = blueDockHigh;
     }
   }
-  /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
-  contours as rectangles to be drawn on the main image*/
-  public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, boolean checkRatio, Rect[] rectangles, boolean secondaryColor, Scalar lower2, Scalar higher2){
-    ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours, use arraylist to avoid index out of bounds exception
-    Mat hierarchy = new Mat(); //hierarchy, for the color isolation
-    Mat dest = new Mat(); //destination of the color alterred image
-    Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation,
-    erosion,opening, etc. Am i creating too many mats!?!*/
-    int listCount = 0; //array list
+  // /*this method detects colors of either the cones, cubes,  and bumpers of other robots (red or blue) and puts their
+  // contours as rectangles to be drawn on the main image*/
+  // public void detectContours(Mat img, Scalar lower, Scalar higher, double aspRatio, boolean checkRatio, Rect[] rectangles, boolean secondaryColor, Scalar lower2, Scalar higher2){
+  //   ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //find contours, use arraylist to avoid index out of bounds exception
+  //   Mat hierarchy = new Mat(); //hierarchy, for the color isolation
+  //   Mat dest = new Mat(); //destination of the color alterred image
+  //   Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)); /*kernel for dialation,
+  //   erosion,opening, etc. Am i creating too many mats!?!*/
+  //   int listCount = 0; //array list
 
-    //color isolation
-    Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image
-    Core.inRange(dest, lower, higher, dest); //get color
+  //   //color isolation
+  //   Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //transform image into an HSV image
+  //   Core.inRange(dest, lower, higher, dest); //get color
 
-    // remove noise via opening
-    Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel);
-    //isolate contours
-    Imgproc.findContours(dest, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-    MatOfPoint2f[] contoursReg = new MatOfPoint2f[contours.size()]; //approx contour length,(good for boundng box)
-    /*further get rid of noise/regularify the sides,
-    plus we need to convert our countors to a different format so we can create bounding rectangles! */
+  //   // remove noise via opening
+  //   Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel);
+  //   //isolate contours
+  //   Imgproc.findContours(dest, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+  //   MatOfPoint2f[] contoursReg = new MatOfPoint2f[contours.size()]; //approx contour length,(good for boundng box)
+  //   /*further get rid of noise/regularify the sides,
+  //   plus we need to convert our countors to a different format so we can create bounding rectangles! */
 
-    for(int i = 0; i < contours.size(); i++){
-      double area = Imgproc.contourArea(contours.get(i));
+  //   for(int i = 0; i < contours.size(); i++){
+  //     double area = Imgproc.contourArea(contours.get(i));
 
-      if(area > 100){ //if the contour isn't too small (test for noise later on)
-        Imgproc.drawContours(img, contours, -1, this.boxColor, 4); //draw contours(for dashboard)
+  //     if(area > 100){ //if the contour isn't too small (test for noise later on)
+  //       Imgproc.drawContours(img, contours, -1, this.boxColor, 4); //draw contours(for dashboard)
 
-        double perimeter = Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true); //get the perimeter
-        Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), contoursReg[i], 0.02 * perimeter, true); //polygonify
-        Rect potential = Imgproc.boundingRect(new MatOfPoint(contoursReg[i].toArray()));  //use to check aspect ratio
+  //       double perimeter = Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true); //get the perimeter
+  //       Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), contoursReg[i], 0.02 * perimeter, true); //polygonify
+  //       Rect potential = Imgproc.boundingRect(new MatOfPoint(contoursReg[i].toArray()));  //use to check aspect ratio
 
 
-        //check if the desired aspect ratio is met
-        double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
-        if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05) || checkRatio == false){ //if the aspect ratio is close enough
-          if(listCount < rectangles.length){ //scan for overflow
-            if(secondaryColor == true){ //if we scanning for a secondary color within the bounds of potential, do that here
-              //praying for the robots memory rn, help me
-              ArrayList<MatOfPoint> contours2 = new ArrayList<MatOfPoint>(); //new array list of contours
-              Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //reuse destination image to save memory
-              Core.inRange(dest, lower2, higher2, dest); //scan for secondary color
-              Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel); //remove noise
-              Imgproc.findContours(dest, contours2, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE); //get countours of white
-              for(int j = 0; j < contours2.size(); j++){ //run thru new array
-                double smolArea = Imgproc.contourArea(contours2.get(j)); //get area
-                if(smolArea > 100){ //remove excess noise
-                  Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(j).toArray())); //bounding rect it
-                  //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/
+  //       //check if the desired aspect ratio is met
+  //       double ratio = ((double)potential.width) / ((double)potential.height); //calculate the aspect ratio of the rectangle
+  //       if(ratio > (aspRatio * 0.95) && ratio < (aspRatio * 1.05) || checkRatio == false){ //if the aspect ratio is close enough
+  //         if(listCount < rectangles.length){ //scan for overflow
+  //           if(secondaryColor == true){ //if we scanning for a secondary color within the bounds of potential, do that here
+  //             //praying for the robots memory rn, help me
+  //             ArrayList<MatOfPoint> contours2 = new ArrayList<MatOfPoint>(); //new array list of contours
+  //             Imgproc.cvtColor(img, dest, Imgproc.COLOR_BGR2HSV); //reuse destination image to save memory
+  //             Core.inRange(dest, lower2, higher2, dest); //scan for secondary color
+  //             Imgproc.morphologyEx(dest, dest, Imgproc.MORPH_OPEN, kernel); //remove noise
+  //             Imgproc.findContours(dest, contours2, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE); //get countours of white
+  //             for(int j = 0; j < contours2.size(); j++){ //run thru new array
+  //               double smolArea = Imgproc.contourArea(contours2.get(j)); //get area
+  //               if(smolArea > 100){ //remove excess noise
+  //                 Rect smol = Imgproc.boundingRect(new MatOfPoint(contours2.get(j).toArray())); //bounding rect it
+  //                 //skipping fine processing cuz its a secondary color we just want to see if it is there(plus save space) :/
 
-                  //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
-                  if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list
-                    rectangles[listCount] = potential; //add it to the list!
-                    listCount ++; //increase the count
-                    break; // break out of this loop
-                  }
-                }
-              }
+  //                 //since the white is small and has to be directly in the countour of the red, we don't have to do that extreme of a check
+  //                 if(smol.x >= potential.x && smol.y >= potential.y && smol.x <= potential.x + potential.width && smol.y <= potential.y + potential.height){ //if the secondary color is found within the object we are examining, add it ot the list
+  //                   rectangles[listCount] = potential; //add it to the list!
+  //                   listCount ++; //increase the count
+  //                   break; // break out of this loop
+  //                 }
+  //               }
+  //             }
 
-            } else { //otherwise we move on
-            rectangles[listCount] = potential; //add it to the list!
-            listCount ++; //increase the count
-            }
-          }
-        }
-      }
-    }
-  }
+  //           } else { //otherwise we move on
+  //           rectangles[listCount] = potential; //add it to the list!
+  //           listCount ++; //increase the count
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
-  public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for
-    this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cubes
-    this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cones
-    this.detectContours(feed, redLower, redHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for red team robots
-    this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for blue team robots
+  // public void findObjects(){ //for simplicity we have a method that scans for EVERYTHING we are looking for
+  //   this.detectContours(feed, coneLower, coneHigher, coneAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cubes
+  //   this.detectContours(feed, cubeLower, cubeHigher, cubeAspectRatio, true, payloadBoundingRect, false, whiteLower, whiteHigher); //scan for cones
+  //   this.detectContours(feed, redLower, redHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for red team robots
+  //   this.detectContours(feed, blueLower, blueHigher, robotAspectRatio, false, robotBoundingRect, true, whiteLower, whiteHigher); //scan for blue team robots
 
-  }
+  // }
 
-  //find the drop off
-  public Rect findDrop(){
-    Rect[] potentials = new Rect[10];
-    this.detectContours(this.feed, this.allianceDockLow, this.allianceDockHigh, this.dockAspectRatio, true, potentials, false, this.whiteLower, this.whiteHigher);
-    //find the biggest one (closest)
-    Rect biggest = potentials[0]; //start from index
-    for(Rect r: potentials){ //go thru array
-      if(biggest.width * biggest.height > r.width * r.height){
-        biggest = r;
-      }
-    }
-    return biggest;
+  // //find the drop off
+  // public Rect findDrop(){
+  //   Rect[] potentials = new Rect[10];
+  //   this.detectContours(this.feed, this.allianceDockLow, this.allianceDockHigh, this.dockAspectRatio, true, potentials, false, this.whiteLower, this.whiteHigher);
+  //   //find the biggest one (closest)
+  //   Rect biggest = potentials[0]; //start from index
+  //   for(Rect r: potentials){ //go thru array
+  //     if(biggest.width * biggest.height > r.width * r.height){
+  //       biggest = r;
+  //     }
+  //   }
+  //   return biggest;
 
-  }
+  // }
 
-  //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
-  public boolean scanStationaryObstacles(){
-    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles
-      Rect check = payloadBoundingRect[i]; //i want to type less >:P
-      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1]))
-      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
-      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
-      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
-      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
-        return true;
-      }
-    }
-    return false;
-  }
+  // //periodically scan for obstacles to see if there are within the robot's range to be hit (stationary objects)
+  // public boolean scanStationaryObstacles(){
+  //   for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles
+  //     Rect check = payloadBoundingRect[i]; //i want to type less >:P
+  //     if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1]))
+  //     ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+  //     || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+  //     || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+  //     { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
-  //same thing but for robots(we wnat to do different things if it is a robot or object)
-  public boolean scanRobots(){
-    for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles
-      Rect check = payloadBoundingRect[i]; //i want to type less >:P
-      if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1]))
-      ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
-      || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
-      || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
-      { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
-        return true;
-      }
-    }
-    return false;
-  }
+  // //same thing but for robots(we wnat to do different things if it is a robot or object)
+  // public boolean scanRobots(){
+  //   for(int i = 0; i < payloadBoundingRect.length; i++){ //run thru the arraylist of bounding rectangles
+  //     Rect check = payloadBoundingRect[i]; //i want to type less >:P
+  //     if((check.x >= frontCoordinate[0] && check.y >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && check.y <= (frontCoordinate[1] + frontDimensions[1]))
+  //     ||(check.x >= frontCoordinate[0] && (check.y + check.height) >= frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+  //     || ((check.x + check.width) > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && (check.x + check.width) <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) >= (frontCoordinate[1] + frontDimensions[1]))
+  //     || check.x > frontCoordinate[0] && (check.y + check.height) > frontCoordinate[1] && check.x <= (frontCoordinate[0] + frontDimensions[0]) && (check.y + check.height) <= (frontCoordinate[1] + frontDimensions[1]))
+  //     { //long if statement to check the corners to see if there are in the robot's "frontal vicinity"
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
 
   //all of these are soley for testing stuff

@@ -6,6 +6,11 @@
           "open": true
         }
       }
+    },
+    "RoboRIO": {
+      "RoboRIO Input": {
+        "open": true
+      }
     }
   },
   "NTProvider": {
@@ -16,8 +21,10 @@
     }
   },
   "NetworkTables": {
-    "Retained Values": {
-      "open": false
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
     }
   }
 }

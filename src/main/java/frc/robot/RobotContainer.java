@@ -42,7 +42,7 @@ public class RobotContainer {
       ),
     new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
 */
-    public DriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
+    public ArcadeDriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
     new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
       new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
       new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless), // front left
@@ -95,7 +95,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public DriveSubsystem getDriveSubsystem() {
+  public ArcadeDriveSubsystem getDriveSubsystem() {
     return driveSubsystem;
   }
 
@@ -118,7 +118,13 @@ public class RobotContainer {
     return driveCommand;
   }
 
-  public DriveSubsystem getDriveSub()
+  public IntakeCommand getIntakeCommand()
+  {
+    // intakeCommand will run in teleop
+    return intakeCommand;
+  }
+
+  public ArcadeDriveSubsystem getDriveSub()
   {
     // driveCommand will run in teleop
     return driveSubsystem;

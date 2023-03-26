@@ -47,7 +47,7 @@ public class TankDriveSubsystem implements DriveSubsystem {
     }
 
     @Override
-    public void drive(double power, DriveDirection direction) {
+    public void manual_drive(double power, DriveDirection direction) {
         /*
         switch (direction) {
             case FORWARD:

@@ -13,8 +13,13 @@ Date: 3/29/2021
 
 package frc.robot.subsystems.drive.arcade;
 
+import java.util.Timer;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.DriveDirection;
@@ -24,41 +29,54 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 public class ArcadeDriveSubsystem implements DriveSubsystem {
     private ArcadeDriveChassis chassis;
     private ArcadeDriveInputs inputs;
+    private PowerDistribution pdh;
+    private final MotorControllerGroup leftDriveGroup;
+    private final MotorControllerGroup rightDriveGroup;
+    private final DifferentialDrive drive;
     private double power = 1;
 
     public ArcadeDriveSubsystem(ArcadeDriveChassis chassis, ArcadeDriveInputs inputs) {
         this.chassis = chassis;
         this.inputs = inputs;
+        this.pdh = new PowerDistribution();
+        this.leftDriveGroup = new MotorControllerGroup(chassis.getBackLeft(), chassis.getFrontLeft());
+        this.rightDriveGroup = new MotorControllerGroup(chassis.getBackRight(), chassis.getFrontRight());
+        this.drive = new DifferentialDrive(chassis.getFrontLeft(), chassis.getFrontRight());
+        this.chassis.getBackRight().setInverted(true);
+        this.chassis.getFrontRight().setInverted(false);
+        this.setBrake();
     }
 
     private void setMotors(double left, double right) {
-        chassis.getBackLeft().set(left);
-        chassis.getFrontLeft().set(left);
+        chassis.getBackLeft().set(-left);
+        chassis.getFrontLeft().set(-left);
 
-        chassis.getBackRight().set(-(right));
+        chassis.getBackRight().set((right));
         chassis.getFrontRight().set(-(right));
     }
+    public void drive(){ 
+        drive.arcadeDrive(inputs.xStick.get(), inputs.yStick.get());
+    }
 
-    @Override
-    public void drive(double power, DriveDirection direction) {
-        switch (direction)
-        {
-            case FORWARD:
-                setMotors(-power, -power);
-                break;
+    public void manual_drive(double power, DriveDirection direction) {
+        // switch (direction)
+        // {
+        //     case FORWARD:
+        //         setMotors(power, power);
+        //         break;
 
-            case BACKWARD:
-                setMotors(power, power);
-                break;
+        //     case BACKWARD:
+        //         setMotors(-power, -power);
+        //         break;
 
-            case RIGHT:
-                setMotors(-power, power);
-                break;
+        //     case RIGHT:
+        //         setMotors(power, -power);
+        //         break;
 
-            case LEFT:
-                setMotors(power, -power);
-                break;
-        }
+        //     case LEFT:
+        //         setMotors(-power, power);
+        //         break;
+        // }
     }
 
     @Override
@@ -110,9 +128,9 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     @Override
     public boolean moveToPosition(double location, double speed) {
         if(location > 0)
-            drive(speed, DriveDirection.FORWARD);
+            manual_drive(speed, DriveDirection.FORWARD);
         else
-            drive(speed, DriveDirection.BACKWARD);
+            manual_drive(speed, DriveDirection.BACKWARD);
 
         return Math.abs(chassis.getBackLeft().getEncoder().getPosition()) > Math.abs((int)location); //use the back left encoder for position tracking (driving in a straight line, doesn't really matter which one we use for arcade)
     }
@@ -120,7 +138,7 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     @Override
     public boolean moveToPosition(PIDController pid, double location, double speed) {
         double pidSpeed = pid.calculate(chassis.getBackLeft().getEncoder().getPosition(), location) * speed;
-        drive(pidSpeed, DriveDirection.BACKWARD);
+        manual_drive(pidSpeed, DriveDirection.BACKWARD);
 
         return Math.abs(chassis.getBackLeft().getEncoder().getPosition()) > Math.abs((int)location);
     }
@@ -154,25 +172,28 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         chassis.getBackRight().set((forward + turn));
         chassis.getFrontRight().set(-(forward + turn));
 
-        /* SmartDashboard.putNumber("Front Right ESC: ", chassis.getFrontRight().getMotorTemperature());
-        SmartDashboard.putNumber("Front Left ESC: ", chassis.getFrontLeft().getMotorTemperature());
-        SmartDashboard.putNumber("Back Right ESC: ", chassis.getBackRight().getMotorTemperature());
-        SmartDashboard.putNumber("Back Left ESC: ", chassis.getBackLeft().getMotorTemperature()); */
+        SmartDashboard.putNumber("Front Right Temp: ", chassis.getFrontRight().getMotorTemperature());
+        SmartDashboard.putNumber("Front Left Temp: ", chassis.getFrontLeft().getMotorTemperature());
+        SmartDashboard.putNumber("Back Right Temp: ", chassis.getBackRight().getMotorTemperature());
+        SmartDashboard.putNumber("Back Left Temp: ", chassis.getBackLeft().getMotorTemperature());
 
-        SmartDashboard.putNumber("Total Current Draw: ", returnCurrentDraw());
+        SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
+        SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
     }
 
     public void setPowersFO(AHRS ahrs) {
         // do nothing
     }
 
+    public double returnCurrentDraw() {
+        return 0;
+    }
+
     // method needs to take in x and y of one joystick.  Also needs to take in power.
     // then needs to change direction according to that.
 
     // Return the power draw of all four motors.
-    public double returnCurrentDraw() {
-        return chassis.getBackLeft().getOutputCurrent() + chassis.getBackRight().getOutputCurrent() + chassis.getFrontLeft().getOutputCurrent() + chassis.getFrontRight().getOutputCurrent();
-    }
+    
 
     @Override
     public double debug() {

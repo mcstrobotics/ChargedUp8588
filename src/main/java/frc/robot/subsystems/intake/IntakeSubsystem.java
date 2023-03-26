@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class IntakeSubsystem implements Subsystem {
 
-    private final double intakePower = 0.50;
+    private final double intakePower = 1;
     private final double armPower = 0.5;
 
     private IntakeChassis chassis;
