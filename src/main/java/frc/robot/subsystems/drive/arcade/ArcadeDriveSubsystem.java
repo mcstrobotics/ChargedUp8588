@@ -39,11 +39,11 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         this.chassis = chassis;
         this.inputs = inputs;
         this.pdh = new PowerDistribution();
+        chassis.getBackRight().setInverted(true);
         this.leftDriveGroup = new MotorControllerGroup(chassis.getBackLeft(), chassis.getFrontLeft());
         this.rightDriveGroup = new MotorControllerGroup(chassis.getBackRight(), chassis.getFrontRight());
-        this.drive = new DifferentialDrive(chassis.getFrontLeft(), chassis.getFrontRight());
-        this.chassis.getBackRight().setInverted(true);
-        this.chassis.getFrontRight().setInverted(false);
+        this.drive = new DifferentialDrive(leftDriveGroup, rightDriveGroup);
+
         this.setBrake();
     }
 
@@ -51,11 +51,14 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         chassis.getBackLeft().set(-left);
         chassis.getFrontLeft().set(-left);
 
-        chassis.getBackRight().set((right));
+        chassis.getBackRight().set((-right));
         chassis.getFrontRight().set(-(right));
     }
+    public void drive(double x){
+        drive.arcadeDrive(x,0);
+    }
     public void drive(){ 
-        drive.arcadeDrive(inputs.xStick.get(), inputs.yStick.get());
+        drive.arcadeDrive(inputs.yStick.get(), inputs.xStick.get());
     }
 
     public void manual_drive(double power, DriveDirection direction) {
@@ -193,7 +196,11 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     // then needs to change direction according to that.
 
     // Return the power draw of all four motors.
-    
+    @Override
+    public void periodic(){
+        setPowers();
+    }
+
 
     @Override
     public double debug() {

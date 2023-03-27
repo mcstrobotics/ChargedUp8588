@@ -301,7 +301,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    m_autonomousCommand.execute();
 
   //   if (timeElapsed < autonPeriod) {
   //           switch (currentPhase) {
@@ -399,7 +398,6 @@ public class Robot extends TimedRobot {
     // bot goes nyoom
     //driveCommand.execute();
     m_robotContainer.driveSubsystem.drive();
-    intakeCommand.execute();
 
     // send intake telemetry
     //subsystemIntake.periodic();
