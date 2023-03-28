@@ -9,7 +9,6 @@ public class ArcadeDriveInputs {
     public final Supplier<Double> yStick;
     public final Supplier<Integer> pov;
 
-
     public ArcadeDriveInputs(Supplier<Double> xDirection, Supplier<Double> yDirection, Supplier<Integer> pov) {
         this.xStick = xDirection;
         this.yStick = yDirection;

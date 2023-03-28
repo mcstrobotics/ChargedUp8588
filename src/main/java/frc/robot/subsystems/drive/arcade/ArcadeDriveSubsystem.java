@@ -15,12 +15,12 @@ package frc.robot.subsystems.drive.arcade;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.drive.DriveDirection;
 import frc.robot.subsystems.drive.DriveSubsystem;
 
 
@@ -45,9 +45,19 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
 
         this.setBrake();
     }
+
+  
     public void drive(double x){
         drive.arcadeDrive(x,0);
 
+    }
+    public void drive(){ 
+        drive.arcadeDrive(inputs.yStick.get(), inputs.xStick.get());
+
+    }
+
+    @Override
+    public void sendTelemetry() {
         SmartDashboard.putNumber("Front Right Temp: ", chassis.getFrontRight().getMotorTemperature());
         SmartDashboard.putNumber("Front Left Temp: ", chassis.getFrontLeft().getMotorTemperature());
         SmartDashboard.putNumber("Back Right Temp: ", chassis.getBackRight().getMotorTemperature());
@@ -55,69 +65,6 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
 
         SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
         SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
-        
-
-    }
-    public void drive(){ 
-        drive.arcadeDrive(inputs.yStick.get(), inputs.xStick.get());
-    }
-
-    public void manual_drive(double power, DriveDirection direction) {
-        // switch (direction)
-        // {
-        //     case FORWARD:
-        //         setMotors(power, power);
-        //         break;
-
-        //     case BACKWARD:
-        //         setMotors(-power, -power);
-        //         break;
-
-        //     case RIGHT:
-        //         setMotors(power, -power);
-        //         break;
-
-        //     case LEFT:
-        //         setMotors(-power, power);
-        //         break;
-        // }
-    }
-
-    @Override
-    public void drive(double leftX, double leftY, double rightX, double rightY) {
-        /*
-        double direction;
-        // calculates the direction off of left joystick values
-        if ((Math.abs(leftX) < 0.1 && Math.abs(leftY) < 0.1) {
-            // center
-            direction = 0;
-            // sets direction to 0, meaning there is no movement.
-        }
-        else if (leftX > 0 && leftY > 0) {
-            // first quadrant
-            direction = Math.atan(leftY/leftX);
-            // uses the arctangent of the triangle made by the x and y values to find the angle to drive in.
-        }
-        else if (leftX < 0 && leftY > 0) {
-            direction = Math.atan(leftY/leftX) + Math.PI * 3 / 2;
-            // uses the arctangent of the triangle made by the x and y values to find the angle to drive in. + 270 degrees.
-        }
-        else if (leftX < 0 && leftY < 0) {
-            // third quadrant
-            direction = Math.atan(leftY/leftX) + Math.PI;
-            // uses the arctangent of the triangle made by the x and y values to find the angle to drive in. + 180 degrees.
-        }
-        else if (leftX > 0 && leftY < 0) {
-            direction = Math.atan(leftY/leftX) + Math.PI / 2;
-            // uses the arctangent of the triangle made by the x and y values to find the angle to drive in. + 90 degrees
-        }
-
-        double speed = Math.sqrt(leftX * leftX + leftY * leftY);
-        // calculates the speed by the hypotenuse of the said triangle.
-        */
-
-//        chassis.getLeft.setLeft(leftX + leftY);
-//        chassis.getRight.setRight(leftX - leftY);
     }
 
     @Override
@@ -127,34 +74,6 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
 
         chassis.getBackLeft().getEncoder().setPosition(0);
         chassis.getBackRight().getEncoder().setPosition(0);
-    }
-
-    @Override
-    public boolean moveToPosition(double location, double speed) {
-        if(location > 0)
-            manual_drive(speed, DriveDirection.FORWARD);
-        else
-            manual_drive(speed, DriveDirection.BACKWARD);
-
-        return Math.abs(chassis.getBackLeft().getEncoder().getPosition()) > Math.abs((int)location); //use the back left encoder for position tracking (driving in a straight line, doesn't really matter which one we use for arcade)
-    }
-
-    @Override
-    public boolean moveToPosition(PIDController pid, double location, double speed) {
-        double pidSpeed = pid.calculate(chassis.getBackLeft().getEncoder().getPosition(), location) * speed;
-        manual_drive(pidSpeed, DriveDirection.BACKWARD);
-
-        return Math.abs(chassis.getBackLeft().getEncoder().getPosition()) > Math.abs((int)location);
-    }
-
-    @Override
-    public boolean strafeToPosition(double location, double speed) {
-        return false;
-    }
-
-    @Override
-    public boolean strafeToPosition(PIDController pid, double location, double speed) {
-        return false;
     }
 
     @Override
@@ -203,12 +122,6 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         SmartDashboard.putBoolean("Front Left: ", chassis.getFrontLeft().getInverted());
         SmartDashboard.putBoolean("Back Right: ", chassis.getBackRight().getInverted());
         SmartDashboard.putBoolean("Back Left: ", chassis.getBackLeft().getInverted());
-    }
-
-
-    @Override
-    public double debug() {
-        return 0;
     }
 
     public void setBrake() {

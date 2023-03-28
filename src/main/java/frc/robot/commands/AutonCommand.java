@@ -5,15 +5,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 
 public class AutonCommand extends SequentialCommandGroup {
     private Timer timer;
-    private final ArcadeDriveSubsystem subsystem; 
 
-    public AutonCommand(ArcadeDriveSubsystem subsystem, double startTime) {
+    private final DriveSubsystem subsystem; 
+    //private final IntakeSubsystem intakeSubsystem;
+
+    public AutonCommand(DriveSubsystem subsystem, double startTime) {
         timer = new Timer();
         this.subsystem = subsystem;
         addRequirements(this.subsystem);
@@ -21,16 +24,13 @@ public class AutonCommand extends SequentialCommandGroup {
                 // reset encoders
                 new InstantCommand(subsystem::resetEncoders),
                 new InstantCommand(timer::reset),
+                new InstantCommand(timer::start),
                 // autobots, roll out
                 new RunCommand(() -> {
-                    timer.start();
-                double timeElapsed; 
-                
-                timeElapsed = timer.get() - startTime;
-                // SmartDashboard.putNumber("Timer: ", timer.get());
-                // SmartDashboard.putNumber("TimeElapsed: ", timeElapsed);
-                // SmartDashboard.putNumber("StartTime: ", startTime);
-                if (timeElapsed >= 5) {
+                double timeElapsed = timer.get()-startTime;
+                  
+                SmartDashboard.putNumber("Timer: ", timer.get());
+                if (timeElapsed >= 7) {
                     subsystem.drive(0);
                 }
                 else if (timeElapsed > 1.5) {
