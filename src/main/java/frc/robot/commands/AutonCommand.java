@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.drive.DriveDirection;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
 
 

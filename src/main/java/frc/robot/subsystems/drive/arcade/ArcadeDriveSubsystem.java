@@ -13,8 +13,6 @@ Date: 3/29/2021
 
 package frc.robot.subsystems.drive.arcade;
 
-import java.util.Timer;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -46,14 +44,6 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         this.drive = new DifferentialDrive(leftDriveGroup, rightDriveGroup);
 
         this.setBrake();
-    }
-
-    private void setMotors(double left, double right) {
-        chassis.getBackLeft().set(-left);
-        chassis.getFrontLeft().set(-left);
-
-        chassis.getBackRight().set((-right));
-        chassis.getFrontRight().set(-(right));
     }
     public void drive(double x){
         drive.arcadeDrive(x,0);

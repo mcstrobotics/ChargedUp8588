@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class IntakeSubsystem implements Subsystem {
@@ -15,10 +14,6 @@ public class IntakeSubsystem implements Subsystem {
         this.chassis = chassis;
         this.inputs = inputs;
     }
-
-    // public IntakeSubsystem(IntakeChassis chassis){
-    //     this.chassis = chassis;
-    // }
 
     @Override
     public void periodic() {
