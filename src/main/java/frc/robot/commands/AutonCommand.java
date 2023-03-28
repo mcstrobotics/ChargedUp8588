@@ -40,14 +40,14 @@ public class AutonCommand extends SequentialCommandGroup {
                 if (timeElapsed >= 7) {
                     subsystem.drive(0);
                 }
-                else if (timeElapsed > 4) {
+                else if (timeElapsed > 3.5) {
                     subsystem.drive(-0.5);
                 }
-                else if (timeElapsed > 1) {
-                    subsystem.drive(0.3);
+                else if (timeElapsed > 0.75) {
+                    subsystem.drive(0.4);
                 }
                 else if (timeElapsed >= 0){
-                    subsystem.drive(-0.5);   
+                    subsystem.drive(-0.7);   
                 }
                 //    do {
                         //a = subsystem.moveToPosition(-35,0.4);
