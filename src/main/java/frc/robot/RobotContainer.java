@@ -25,16 +25,6 @@ public class RobotContainer {
 
   // HOTAS Flight Stick
   private HOTASJoystick flightStick = new HOTASJoystick(0); // change to correct port in driver station
-/*
-  private DriveSubsystem driveSubsystem = new TankDriveSubsystem(
-    new TankDriveChassis( // tank chassis as opposed to arcade or mecanum
-      new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // first number corresponds with device id - may change
-      new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless),
-      new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
-      new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless)
-      ),
-    new TankDriveInputs(flightStick::getX, flightStick::getY)); // x and y of 
-*/
     public ArcadeDriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
     new ArcadeDriveChassis( // arcade chassis as opposed to tank or mecanum
       new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
