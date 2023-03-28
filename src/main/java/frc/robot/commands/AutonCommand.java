@@ -10,15 +10,12 @@ import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
 
 
 public class AutonCommand extends SequentialCommandGroup {
-    //private ArcadeDriveSubsystem arcadeSubsystem;
     private Timer timer;
     private final ArcadeDriveSubsystem subsystem; 
-    //private final IntakeSubsystem intakeSubsystem;
 
     public AutonCommand(ArcadeDriveSubsystem subsystem, double startTime) {
         timer = new Timer();
         this.subsystem = subsystem;
-        //this.intakeSubsystem = intakeSubsystem;
         addRequirements(this.subsystem);
         addCommands(
                 // reset encoders
@@ -26,11 +23,7 @@ public class AutonCommand extends SequentialCommandGroup {
                 new InstantCommand(timer::reset),
                 // autobots, roll out
                 new RunCommand(() -> {
-                    //boolean a = false;
                     timer.start();
-                    // while (timer.get() < 2) {
-                    //     subsystem.halfPower();
-                    // }
                 double timeElapsed; 
                 
                 timeElapsed = timer.get()-startTime;
@@ -49,10 +42,6 @@ public class AutonCommand extends SequentialCommandGroup {
                 else if (timeElapsed >= 0){
                     subsystem.drive(-0.7);   
                 }
-                //    do {
-                        //a = subsystem.moveToPosition(-35,0.4);
-                  //  }
-                    //while (!a);
                 })
         );
     }

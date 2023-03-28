@@ -16,12 +16,7 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     @Override
-    public void periodic() {
-        //SmartDashboard.putNumber("Shooter RPM over time", Math.abs(chassis.getShooter().getEncoder().getVelocity()));
-        //SmartDashboard.putNumber("Current Shooter RPM for Dial", Math.abs(chassis.getShooter().getEncoder().getVelocity()));
-        //SmartDashboard.putNumber("Shooter Temperature", chassis.getShooter().getMotorTemperature());
-
-    }
+    public void periodic() {}
 
     // Stops all two motors in the arm
     public void stopAll() {
