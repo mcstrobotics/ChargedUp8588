@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 /**
@@ -34,15 +35,13 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private DriveCommand driveCommand;
-  private IntakeCommand intakeCommand;
+  private DriveSubsystem driveSubsystem;
 
   double startTime;
-
-
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -56,14 +55,11 @@ public class Robot extends TimedRobot {
     timer = new Timer();
     startTime = timer.get();
 
-
-
     try {
       ahrs = new AHRS(SPI.Port.kMXP); //the kMXP port is the expansion port for the roborio
       ahrs.enableLogging(true);
       //ahrs.calibrate(); //takes approximately 15 seconds to finish (leave commented out for now)
-    }
-    catch (RuntimeException ex) {
+    } catch (RuntimeException ex) {
       DriverStation.reportError("Error creating navx sensor object! " + ex.getMessage(), true);
     }
   }
@@ -82,6 +78,10 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // Drive System Telemetry
+    m_robotContainer.getDriveSubsystem().sendTelemetry();
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -96,9 +96,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     //AutonCommand autonCommand = new AutonCommand(m_robotContainer.getDriveSub(), startTime);
     m_autonomousCommand = m_robotContainer.getAutonCommand();
-    timer.reset();
-    timer.start();
-    //startTime = timer.get();
 
     if (driveCommand != null) {
       driveCommand.cancel();
@@ -113,7 +110,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-
+    // should be nothing, since AutonCommand handles everything and is already scheduled
 }
 
 
@@ -127,31 +124,15 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    driveCommand = m_robotContainer.getDriveCommand();
-    if (driveCommand != null)
-    {
-        driveCommand.schedule();
+    // TODO add intakeCommand back in
 
-    }
-
-
-    intakeCommand = m_robotContainer.getIntakeCommand();
-    if (intakeCommand != null)
-    {
-        intakeCommand.schedule();
-
-    }
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     // bot goes nyoom
-    //driveCommand.execute();
     m_robotContainer.driveSubsystem.drive();
-
-    // send intake telemetry
-    //subsystemIntake.periodic();
   }
 
   @Override
