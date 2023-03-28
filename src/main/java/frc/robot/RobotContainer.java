@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.commands.DriveCommand;
-import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.arcade.*;
 import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -14,12 +13,6 @@ import frc.robot.commands.IntakeCommand;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import frc.robot.usercontrol.HOTASJoystick;
-import edu.wpi.first.wpilibj2.command.*;
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonCommand;
 
 /**
@@ -67,11 +60,7 @@ public class RobotContainer {
   private AutonCommand autonCommand = new AutonCommand(driveSubsystem, obj.startTime);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    //configureBindings(ahrs);
-
-  }
+  public RobotContainer() {}
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -82,14 +71,6 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings(AHRS ahrs) {
-    // Schedule commands tied to buttons
-
-    // for each button number (corresponds to a button), we are going to run a command / method
-    
-    // Reset the ahrs when button 3 on flight stick is pressed (TODO)
-    new JoystickButton(flightStick, 3).toggleOnTrue(new InstantCommand(ahrs::reset)); 
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

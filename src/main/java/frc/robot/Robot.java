@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 /**
@@ -36,7 +35,6 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
 
-  private DriveSubsystem driveSubsystem;
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private DriveCommand driveCommand;
@@ -54,7 +52,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    driveSubsystem = m_robotContainer.getDriveSubsystem();
+    m_robotContainer.getDriveSubsystem();
     timer = new Timer();
     startTime = timer.get();
 

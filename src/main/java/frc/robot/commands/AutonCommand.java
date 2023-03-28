@@ -26,7 +26,7 @@ public class AutonCommand extends SequentialCommandGroup {
                     timer.start();
                 double timeElapsed; 
                 
-                timeElapsed = timer.get()-startTime;
+                timeElapsed = timer.get() - startTime;
                 SmartDashboard.putNumber("Timer: ", timer.get());
                 SmartDashboard.putNumber("TimeElapsed: ", timeElapsed);
                 SmartDashboard.putNumber("StartTime: ", startTime);

@@ -161,10 +161,6 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     public void setPowers() {
         double forward = inputs.yStick.get();
         double turn = inputs.xStick.get();
-        double pov = inputs.pov.get();
-
-        double triggerThreshold = 0.3;
-
 
         //forward = forward * forward * forward;
         //turn = turn * turn * turn;
