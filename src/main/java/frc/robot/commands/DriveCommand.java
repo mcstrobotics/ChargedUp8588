@@ -24,7 +24,6 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        //subsystem.drive();
         intake.setPowers();
         
     }

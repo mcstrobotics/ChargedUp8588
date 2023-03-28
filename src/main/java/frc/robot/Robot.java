@@ -24,7 +24,6 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.drive.DriveSubsystem;
 
 
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -35,13 +34,14 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private DriveCommand driveCommand;
   private DriveSubsystem driveSubsystem;
 
   double startTime;
-
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    driveSubsystem = m_robotContainer.getDriveSubsystem();
+    m_robotContainer.getDriveSubsystem();
     timer = new Timer();
     startTime = timer.get();
 
@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
 
     // Drive System Telemetry
     m_robotContainer.getDriveSubsystem().sendTelemetry();
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -151,5 +152,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
-
 }
