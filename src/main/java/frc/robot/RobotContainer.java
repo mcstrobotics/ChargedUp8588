@@ -49,7 +49,8 @@ public class RobotContainer {
       new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
       new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless) // back left  
       ),
-    new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getY, flightStick::getPOV)); // x and y of 
+    new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getStickYAxis, flightStick::getPOV)); // x and y of 
+    
 
 
     private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(

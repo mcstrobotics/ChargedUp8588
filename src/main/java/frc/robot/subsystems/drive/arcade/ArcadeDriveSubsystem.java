@@ -40,6 +40,7 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         this.inputs = inputs;
         this.pdh = new PowerDistribution();
         chassis.getBackRight().setInverted(true);
+        chassis.getFrontRight().setInverted(true);
         this.leftDriveGroup = new MotorControllerGroup(chassis.getBackLeft(), chassis.getFrontLeft());
         this.rightDriveGroup = new MotorControllerGroup(chassis.getBackRight(), chassis.getFrontRight());
         this.drive = new DifferentialDrive(leftDriveGroup, rightDriveGroup);
@@ -56,6 +57,16 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     }
     public void drive(double x){
         drive.arcadeDrive(x,0);
+
+        SmartDashboard.putNumber("Front Right Temp: ", chassis.getFrontRight().getMotorTemperature());
+        SmartDashboard.putNumber("Front Left Temp: ", chassis.getFrontLeft().getMotorTemperature());
+        SmartDashboard.putNumber("Back Right Temp: ", chassis.getBackRight().getMotorTemperature());
+        SmartDashboard.putNumber("Back Left Temp: ", chassis.getBackLeft().getMotorTemperature());
+
+        SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
+        SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
+        
+
     }
     public void drive(){ 
         drive.arcadeDrive(inputs.yStick.get(), inputs.xStick.get());
@@ -175,13 +186,7 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
         chassis.getBackRight().set((forward + turn));
         chassis.getFrontRight().set(-(forward + turn));
 
-        SmartDashboard.putNumber("Front Right Temp: ", chassis.getFrontRight().getMotorTemperature());
-        SmartDashboard.putNumber("Front Left Temp: ", chassis.getFrontLeft().getMotorTemperature());
-        SmartDashboard.putNumber("Back Right Temp: ", chassis.getBackRight().getMotorTemperature());
-        SmartDashboard.putNumber("Back Left Temp: ", chassis.getBackLeft().getMotorTemperature());
-
-        SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
-        SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
+        
     }
 
     public void setPowersFO(AHRS ahrs) {
@@ -199,6 +204,19 @@ public class ArcadeDriveSubsystem implements DriveSubsystem {
     @Override
     public void periodic(){
         setPowers();
+
+        SmartDashboard.putNumber("Front Right Temp: ", chassis.getFrontRight().getMotorTemperature());
+        SmartDashboard.putNumber("Front Left Temp: ", chassis.getFrontLeft().getMotorTemperature());
+        SmartDashboard.putNumber("Back Right Temp: ", chassis.getBackRight().getMotorTemperature());
+        SmartDashboard.putNumber("Back Left Temp: ", chassis.getBackLeft().getMotorTemperature());
+
+        SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
+        SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
+
+        SmartDashboard.putBoolean("Front Right: ", chassis.getFrontRight().getInverted());
+        SmartDashboard.putBoolean("Front Left: ", chassis.getFrontLeft().getInverted());
+        SmartDashboard.putBoolean("Back Right: ", chassis.getBackRight().getInverted());
+        SmartDashboard.putBoolean("Back Left: ", chassis.getBackLeft().getInverted());
     }
 
 

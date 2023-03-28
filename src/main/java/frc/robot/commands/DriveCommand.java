@@ -30,6 +30,7 @@ public class DriveCommand extends CommandBase {
     public void execute() {
         //subsystem.drive();
         intake.setPowers();
+        
     }
 
     public void execute(AHRS ahrs) {subsystem.setPowersFO(ahrs);}

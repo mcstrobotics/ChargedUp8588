@@ -25,6 +25,7 @@ public class AutonCommand extends SequentialCommandGroup {
         addCommands(
                 // reset encoders
                 new InstantCommand(subsystem::resetEncoders),
+                new InstantCommand(timer::reset),
                 // autobots, roll out
                 new RunCommand(() -> {
                     //boolean a = false;
@@ -42,13 +43,13 @@ public class AutonCommand extends SequentialCommandGroup {
                     subsystem.drive(0);
                 }
                 else if (timeElapsed > 4) {
-                    subsystem.drive(0.5);
+                    subsystem.drive(-0.5);
                 }
                 else if (timeElapsed > 1) {
-                    subsystem.drive(-0.3);
+                    subsystem.drive(0.3);
                 }
                 else if (timeElapsed >= 0){
-                    subsystem.drive(0.5);   
+                    subsystem.drive(-0.5);   
                 }
                 //    do {
                         //a = subsystem.moveToPosition(-35,0.4);
