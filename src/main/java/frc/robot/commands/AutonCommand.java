@@ -5,19 +5,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.drive.DriveDirection;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystem;
 
 
 
 public class AutonCommand extends SequentialCommandGroup {
     //private ArcadeDriveSubsystem arcadeSubsystem;
     private Timer timer;
-    private final ArcadeDriveSubsystem subsystem; 
+    private final DriveSubsystem subsystem; 
     //private final IntakeSubsystem intakeSubsystem;
 
-    public AutonCommand(ArcadeDriveSubsystem subsystem, double startTime) {
+    public AutonCommand(DriveSubsystem subsystem, double startTime) {
         timer = new Timer();
         this.subsystem = subsystem;
         //this.intakeSubsystem = intakeSubsystem;
@@ -26,19 +25,11 @@ public class AutonCommand extends SequentialCommandGroup {
                 // reset encoders
                 new InstantCommand(subsystem::resetEncoders),
                 new InstantCommand(timer::reset),
+                new InstantCommand(timer::start),
                 // autobots, roll out
                 new RunCommand(() -> {
-                    //boolean a = false;
-                    timer.start();
-                    // while (timer.get() < 2) {
-                    //     subsystem.halfPower();
-                    // }
-                double timeElapsed; 
-                
-                timeElapsed = timer.get()-startTime;
+                double timeElapsed = timer.get()-startTime;
                 SmartDashboard.putNumber("Timer: ", timer.get());
-                SmartDashboard.putNumber("TimeElapsed: ", timeElapsed);
-                SmartDashboard.putNumber("StartTime: ", startTime);
                 if (timeElapsed >= 7) {
                     subsystem.drive(0);
                 }
@@ -51,10 +42,6 @@ public class AutonCommand extends SequentialCommandGroup {
                 else if (timeElapsed >= 0){
                     subsystem.drive(-0.5);   
                 }
-                //    do {
-                        //a = subsystem.moveToPosition(-35,0.4);
-                  //  }
-                    //while (!a);
                 })
         );
     }
