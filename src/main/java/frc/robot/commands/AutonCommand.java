@@ -27,16 +27,16 @@ public class AutonCommand extends SequentialCommandGroup {
                 double timeElapsed; 
                 
                 timeElapsed = timer.get() - startTime;
-                SmartDashboard.putNumber("Timer: ", timer.get());
-                SmartDashboard.putNumber("TimeElapsed: ", timeElapsed);
-                SmartDashboard.putNumber("StartTime: ", startTime);
-                if (timeElapsed >= 7) {
+                // SmartDashboard.putNumber("Timer: ", timer.get());
+                // SmartDashboard.putNumber("TimeElapsed: ", timeElapsed);
+                // SmartDashboard.putNumber("StartTime: ", startTime);
+                if (timeElapsed >= 5) {
                     subsystem.drive(0);
                 }
-                else if (timeElapsed > 3.5) {
+                else if (timeElapsed > 1.5) {
                     subsystem.drive(-0.5);
                 }
-                else if (timeElapsed > 0.75) {
+                else if (timeElapsed > 0.3) {
                     subsystem.drive(0.4);
                 }
                 else if (timeElapsed >= 0){
