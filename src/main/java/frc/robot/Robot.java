@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
   private Timer timer;
   private DriveCommand driveCommand;
+  private IntakeCommand intakeCommand;
   private DriveSubsystem driveSubsystem;
 
   double startTime;
@@ -125,7 +126,12 @@ public class Robot extends TimedRobot {
     }
 
     // TODO add intakeCommand back in
+    intakeCommand = m_robotContainer.getIntakeCommand();
+    if (intakeCommand != null)
+    {
+        intakeCommand.schedule();
 
+    }
   }
 
   /** This function is called periodically during operator control. */
