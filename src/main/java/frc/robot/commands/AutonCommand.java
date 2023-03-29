@@ -6,17 +6,17 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystemInterface;
 
 
 
 public class AutonCommand extends SequentialCommandGroup {
     private Timer timer;
 
-    private final DriveSubsystem subsystem; 
+    private final DriveSubsystemInterface subsystem; 
     //private final IntakeSubsystem intakeSubsystem;
 
-    public AutonCommand(DriveSubsystem subsystem, double startTime) {
+    public AutonCommand(DriveSubsystemInterface subsystem, double startTime) {
         timer = new Timer();
         this.subsystem = subsystem;
         addRequirements(this.subsystem);

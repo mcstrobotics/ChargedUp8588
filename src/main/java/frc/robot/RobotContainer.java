@@ -12,12 +12,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.subsystems.drive.arcade.ArcadeDriveChassis;
-import frc.robot.subsystems.drive.arcade.ArcadeDriveInputs;
-import frc.robot.subsystems.drive.arcade.ArcadeDriveSubsystem;
+import frc.robot.subsystems.drive.DiffyDriveChassis;
+import frc.robot.subsystems.drive.DiffyDriveInputs;
+import frc.robot.subsystems.drive.DiffyDriveSubsystem;
 import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeInputs;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.usercontrol.GamepadF310;
 import frc.robot.usercontrol.HOTASJoystick;
 
 /**
@@ -32,16 +33,19 @@ import frc.robot.usercontrol.HOTASJoystick;
 public class RobotContainer {
 
   // HOTAS Flight Stick
-  private HOTASJoystick flightStick = new HOTASJoystick(0);
+  private HOTASJoystick flightStick = new HOTASJoystick(1);
 
-  public ArcadeDriveSubsystem driveSubsystem = new ArcadeDriveSubsystem(
-      new ArcadeDriveChassis(
+  // good old F310
+  private GamepadF310 controller = new GamepadF310(0);
+
+  public DiffyDriveSubsystem driveSubsystem = new DiffyDriveSubsystem(
+      new DiffyDriveChassis(
           new CANSparkMax(Constants.kFrontRight, CANSparkMaxLowLevel.MotorType.kBrushless), // front right
           new CANSparkMax(Constants.kFrontLeft, CANSparkMaxLowLevel.MotorType.kBrushless), // front left
           new CANSparkMax(Constants.kBackRight, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
           new CANSparkMax(Constants.kBackLeft, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
       ),
-      new ArcadeDriveInputs(flightStick::getAxisZRotate, flightStick::getStickYAxis, flightStick::getPOV)); // x and y
+      new DiffyDriveInputs(controller::getLeftY, controller::getRightX, flightStick::getPOV)); // x and y
                                                                                                             // of stick
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
@@ -93,7 +97,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public ArcadeDriveSubsystem getDriveSubsystem() {
+  public DiffyDriveSubsystem getDriveSubsystem() {
     return driveSubsystem;
   }
 
@@ -120,7 +124,7 @@ public class RobotContainer {
     return intakeCommand;
   }
 
-  public ArcadeDriveSubsystem getDriveSub() {
+  public DiffyDriveSubsystem getDriveSub() {
     // driveCommand will run in teleop
     return driveSubsystem;
   }

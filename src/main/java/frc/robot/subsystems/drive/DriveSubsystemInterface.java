@@ -7,7 +7,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public interface DriveSubsystem extends Subsystem {
+public interface DriveSubsystemInterface extends Subsystem {
 
     void resetEncoders(); //reset all encoders for the drive chassis
 

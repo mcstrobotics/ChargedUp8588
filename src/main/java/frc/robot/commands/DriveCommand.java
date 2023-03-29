@@ -6,17 +6,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystemInterface;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class DriveCommand extends CommandBase {
 
-    private DriveSubsystem subsystem;
+    private DriveSubsystemInterface subsystem;
     private IntakeSubsystem intake;
     double power = 0.0;
     double lPower = 0.0;
     double rPower = 0.0;
-    public DriveCommand(DriveSubsystem subsystem, IntakeSubsystem intake) {
+    public DriveCommand(DriveSubsystemInterface subsystem, IntakeSubsystem intake) {
         this.subsystem = subsystem;
         this.intake = intake;
         addRequirements(subsystem, intake);

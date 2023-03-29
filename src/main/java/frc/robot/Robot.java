@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystemInterface;
 
 
 /**
@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   private Timer timer;
   private DriveCommand driveCommand;
   private IntakeCommand intakeCommand;
-  private DriveSubsystem driveSubsystem;
+  private DriveSubsystemInterface driveSubsystem;
 
   double startTime;
   
