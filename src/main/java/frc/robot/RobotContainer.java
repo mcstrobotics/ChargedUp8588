@@ -7,6 +7,7 @@ package frc.robot;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonCommand;
@@ -33,10 +34,12 @@ import frc.robot.usercontrol.HOTASJoystick;
 public class RobotContainer {
 
   // HOTAS Flight Stick
-  private HOTASJoystick flightStick = new HOTASJoystick(1);
+  //private HOTASJoystick flightStick = new HOTASJoystick(1);
 
   // good old F310
-  private GamepadF310 controller = new GamepadF310(0);
+  private GamepadF310 f310 = new GamepadF310(1);
+
+  private XboxController xboxController = new XboxController(0);
 
   public DiffyDriveSubsystem driveSubsystem = new DiffyDriveSubsystem(
       new DiffyDriveChassis(
@@ -45,14 +48,13 @@ public class RobotContainer {
           new CANSparkMax(Constants.kBackRight, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
           new CANSparkMax(Constants.kBackLeft, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
       ),
-      new DiffyDriveInputs(controller::getLeftY, controller::getRightX, flightStick::getPOV)); // x and y
+      new DiffyDriveInputs(xboxController::getLeftY, xboxController::getRightX)); // x and y
                                                                                                             // of stick
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
       new CANSparkMax(Constants.kArm, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
       new CANSparkMax(Constants.kIntake, CANSparkMaxLowLevel.MotorType.kBrushless)),
-      new IntakeInputs(flightStick::getCircleDPadUp, flightStick::getCircleDPadDown, flightStick::getPlusDPadUp,
-          flightStick::getPlusDPadDown)); // intake
+      new IntakeInputs(f310::getLeftY, f310::getRightY)); // intake
   private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands
                                                                                          // from the drive subsystem
   private IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);
@@ -99,10 +101,6 @@ public class RobotContainer {
    */
   public DiffyDriveSubsystem getDriveSubsystem() {
     return driveSubsystem;
-  }
-
-  public HOTASJoystick getGamepad() {
-    return flightStick;
   }
 
   public IntakeSubsystem getIntakeSubsystem() {

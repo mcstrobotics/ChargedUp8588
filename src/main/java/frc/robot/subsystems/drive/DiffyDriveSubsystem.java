@@ -39,6 +39,11 @@ public class DiffyDriveSubsystem implements DriveSubsystemInterface {
         this.pdh = new PowerDistribution();
         //chassis.getBackRight().setInverted(false); // set on the spark max hardware itself
         //chassis.getFrontRight().setInverted(true);
+        chassis.getFrontLeft().setInverted(true);
+        chassis.getFrontRight().setInverted(false);
+        chassis.getBackLeft().setInverted(true);
+        chassis.getBackRight().setInverted(false);
+
         this.leftDriveGroup = new MotorControllerGroup(chassis.getBackLeft(), chassis.getFrontLeft());
         this.rightDriveGroup = new MotorControllerGroup(chassis.getBackRight(), chassis.getFrontRight());
         this.drive = new DifferentialDrive(leftDriveGroup, rightDriveGroup);
@@ -53,7 +58,7 @@ public class DiffyDriveSubsystem implements DriveSubsystemInterface {
     }
     public void drive(){ 
         // tank for F310 - inverted bc channels
-        drive.arcadeDrive(inputs.xStick.get(), -inputs.yStick.get() * 0.75);
+        drive.arcadeDrive(-inputs.xStick.get(), inputs.yStick.get() * 0.75);
         SmartDashboard.putNumber("Left Input", -inputs.xStick.get());
         SmartDashboard.putNumber("Right Input", -inputs.yStick.get());
     }
@@ -67,6 +72,11 @@ public class DiffyDriveSubsystem implements DriveSubsystemInterface {
 
         SmartDashboard.putNumber("Total Current Draw: ", pdh.getTotalCurrent());
         SmartDashboard.putNumber("Total Power Draw: ", pdh.getTotalPower());
+
+        SmartDashboard.putBoolean("Front Right: ", chassis.getFrontRight().getInverted());
+        SmartDashboard.putBoolean("Front Left: ", chassis.getFrontLeft().getInverted());
+        SmartDashboard.putBoolean("Back Right: ", chassis.getBackRight().getInverted());
+        SmartDashboard.putBoolean("Back Left: ", chassis.getBackLeft().getInverted());
     }
 
     @Override

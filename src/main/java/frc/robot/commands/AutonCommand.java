@@ -30,7 +30,7 @@ public class AutonCommand extends SequentialCommandGroup {
                 double timeElapsed = timer.get()-startTime;
                   
                 SmartDashboard.putNumber("Timer: ", timer.get());
-                if (timeElapsed >= 7) {
+                if (timeElapsed >= 5) {
                     subsystem.drive(0);
                 }
                 else if (timeElapsed > 1.5) {

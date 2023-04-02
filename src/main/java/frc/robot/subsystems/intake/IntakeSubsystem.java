@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import com.revrobotics.CANSparkMax;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class IntakeSubsystem implements Subsystem {
@@ -13,6 +16,11 @@ public class IntakeSubsystem implements Subsystem {
     public IntakeSubsystem(IntakeChassis chassis, IntakeInputs inputs){
         this.chassis = chassis;
         this.inputs = inputs;
+        this.chassis.getIntake().setOpenLoopRampRate(0);
+        this.chassis.getIntake().setIdleMode(CANSparkMax.IdleMode.kBrake);
+        this.chassis.getIntake().setOpenLoopRampRate(0);
+        this.chassis.getArm().setOpenLoopRampRate(0.2);
+        this.chassis.getIntake().setSmartCurrentLimit(12, 12);
     }
 
     @Override
@@ -52,32 +60,31 @@ public class IntakeSubsystem implements Subsystem {
     public void setPowers() {
         // utilize each function based on inputs
 
+        SmartDashboard.putNumber("Intake Temp", chassis.getIntake().getMotorTemperature());
+
+        double armMax = 0.2;
+        double intakeInMax = 0.35;
+        double intakeOutMax = 0.5; 
+
         // arm / elevator
-        boolean elevatorUp = inputs.elevatorUp.get();
-        boolean elevatorDown = inputs.elevatorDown.get();
+        double arm = inputs.arm.get() * armMax;
+        double intake = inputs.intake.get();
 
-        // intake
-        boolean armUp = inputs.armUp.get();
-        boolean armDown = inputs.armDown.get();
+        if (chassis.getIntake().getMotorTemperature() <= 65) {
+            if (intake > 0.05) {
+                // intake out
+                chassis.getIntake().set(intake * intakeOutMax);
+            } else if (intake < -0.05) {
+                // intake out
+                chassis.getIntake().set(intake * intakeInMax);
+            } else {
+                chassis.getIntake().set(0);
+            }
+            SmartDashboard.putString("Intake failure?", "NO");
+        } else {
+            SmartDashboard.putString("Intake failure?", "YES");
+        }
 
-        if (elevatorUp) {
-            armUp();
-        }
-        else if (elevatorDown) {
-            armDown();
-        }
-        else {
-            stopElevator();
-        }
-
-        if (armUp) {
-            intakeIn();
-        }
-        else if (armDown) {
-            intakeOut();
-        }
-        else {
-            stopArm();
-        }
+        chassis.getArm().set(arm);
     }
 }
