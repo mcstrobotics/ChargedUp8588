@@ -17,19 +17,19 @@ public class GamepadF310 {
      */
     public static final int GAMEPAD_LEFT_X = 0;
     public static final int GAMEPAD_LEFT_Y = 1;
-    public static final int GAMEPAD_RIGHT_X = 2;
-    public static final int GAMEPAD_RIGHT_Y = 3;
+    public static final int GAMEPAD_RIGHT_X = 4;
+    public static final int GAMEPAD_RIGHT_Y = 5;
 
-    public static final int GAMEPAD_LEFT_TRIGGER = 4;
-    public static final int GAMEPAD_RIGHT_TRIGGER = 5; // not sure if these are right
+    public static final int GAMEPAD_LEFT_TRIGGER = 2;
+    public static final int GAMEPAD_RIGHT_TRIGGER = 3; // not sure if these are right
 
-    public static final int GAMEPAD_A = 1;
-    public static final int GAMEPAD_B = 2;
-    public static final int GAMEPAD_X = 3;
-    public static final int GAMEPAD_Y = 4;
+    public static final int GAMEPAD_A = 0;
+    public static final int GAMEPAD_B = 1;
+    public static final int GAMEPAD_X = 2;
+    public static final int GAMEPAD_Y = 3;
 
-    public static final int GAMEPAD_LEFT_BUMPER = 5;
-    public static final int GAMEPAD_RIGHT_BUMPER = 6;
+    public static final int GAMEPAD_LEFT_BUMPER = 4;
+    public static final int GAMEPAD_RIGHT_BUMPER = 5;
 
 
     public Joystick joystick;

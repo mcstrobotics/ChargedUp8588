@@ -20,7 +20,6 @@ import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeInputs;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.usercontrol.GamepadF310;
-import frc.robot.usercontrol.HOTASJoystick;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -48,13 +47,13 @@ public class RobotContainer {
           new CANSparkMax(Constants.kBackRight, CANSparkMaxLowLevel.MotorType.kBrushless), // back right
           new CANSparkMax(Constants.kBackLeft, CANSparkMaxLowLevel.MotorType.kBrushless) // back left
       ),
-      new DiffyDriveInputs(xboxController::getLeftY, xboxController::getRightX)); // x and y
+      new DiffyDriveInputs(f310::getLeftY, f310::getRightX)); // x and y
                                                                                                             // of stick
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem(new IntakeChassis(
       new CANSparkMax(Constants.kArm, CANSparkMaxLowLevel.MotorType.kBrushless), // arm
       new CANSparkMax(Constants.kIntake, CANSparkMaxLowLevel.MotorType.kBrushless)),
-      new IntakeInputs(f310::getLeftY, f310::getRightY)); // intake
+      new IntakeInputs(f310::getRightTrigger, f310::getLeftTrigger, f310::getRightBumper, f310::getLeftBumper)); // intake
   private DriveCommand driveCommand = new DriveCommand(driveSubsystem, intakeSubsystem); // issue the drive commands
                                                                                          // from the drive subsystem
   private IntakeCommand intakeCommand = new IntakeCommand(intakeSubsystem);

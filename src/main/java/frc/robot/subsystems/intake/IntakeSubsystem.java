@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -21,6 +22,8 @@ public class IntakeSubsystem implements Subsystem {
         this.chassis.getIntake().setOpenLoopRampRate(0);
         this.chassis.getArm().setOpenLoopRampRate(0.2);
         this.chassis.getIntake().setSmartCurrentLimit(12, 12);
+
+        this.chassis.getArm().setIdleMode(CANSparkMax.IdleMode.kBrake);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     public void intakeOut() {
-        chassis.getIntake().set(0.35);
+        chassis.getIntake().set(-0.35);
 
     }
 
@@ -65,26 +68,40 @@ public class IntakeSubsystem implements Subsystem {
         double armMax = 0.2;
         double intakeInMax = 0.35;
         double intakeOutMax = 0.5; 
+        chassis.getIntake().setIdleMode(IdleMode.kBrake);
 
         // arm / elevator
-        double arm = inputs.arm.get() * armMax;
-        double intake = inputs.intake.get();
+        double armUp = inputs.armUp.get() * armMax;
+        double armDown = inputs.armDown.get() * armMax;
+        boolean intakeIn = inputs.intakeIn.get();
+        boolean intakeOut = inputs.intakeOut.get();
 
         if (chassis.getIntake().getMotorTemperature() <= 65) {
-            if (intake > 0.05) {
+            if (intakeIn) {
                 // intake out
-                chassis.getIntake().set(intake * intakeOutMax);
-            } else if (intake < -0.05) {
+                //chassis.getIntake().set(intakeOutMax);
+                intakeIn();
+            } else if (intakeOut) {
                 // intake out
-                chassis.getIntake().set(intake * intakeInMax);
+                //chassis.getIntake().set(intakeInMax);
+                intakeOut();
             } else {
                 chassis.getIntake().set(0);
             }
             SmartDashboard.putString("Intake failure?", "NO");
+            SmartDashboard.putBoolean("Intake In?", intakeIn);
+            SmartDashboard.putBoolean("Intake Out?", intakeOut);
         } else {
             SmartDashboard.putString("Intake failure?", "YES");
         }
 
-        chassis.getArm().set(arm);
+        if (inputs.armUp.get() > 0.2) {
+            chassis.getArm().set(-armUp);
+        }
+        else if (inputs.armDown.get() > 0.2) {
+            chassis.getArm().set(armDown);
+        } else {
+            chassis.getArm().set(0);
+        }
     }
 }
