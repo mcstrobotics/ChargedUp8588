@@ -8,8 +8,11 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class IntakeSubsystem implements Subsystem {
 
-    private final double intakePower = 1;
+    //private final double intakePower = 1;
     private final double armPower = 0.5;
+
+    private final double intakeInMax = 1;
+    private final double intakeOutMax = -1;
 
     private IntakeChassis chassis;
     private IntakeInputs inputs;
@@ -44,11 +47,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     public void intakeIn() {
-        chassis.getIntake().set(intakePower);
+        chassis.getIntake().set(intakeInMax);
     }
 
     public void intakeOut() {
-        chassis.getIntake().set(-0.35);
+        chassis.getIntake().set(intakeOutMax);
 
     }
 
@@ -65,9 +68,7 @@ public class IntakeSubsystem implements Subsystem {
 
         SmartDashboard.putNumber("Intake Temp", chassis.getIntake().getMotorTemperature());
 
-        double armMax = 0.2;
-        double intakeInMax = 0.35;
-        double intakeOutMax = 0.5; 
+        double armMax = 0.2; 
         chassis.getIntake().setIdleMode(IdleMode.kBrake);
 
         // arm / elevator

@@ -58,7 +58,7 @@ public class DiffyDriveSubsystem implements DriveSubsystemInterface {
     }
     public void drive(){ 
         // tank for F310 - inverted bc channels
-        drive.arcadeDrive(-inputs.xStick.get(), inputs.yStick.get() * 0.75);
+        drive.arcadeDrive(-inputs.xStick.get() - 0.1, inputs.yStick.get() * 0.75 - 0.1);
         SmartDashboard.putNumber("Left Input", -inputs.xStick.get());
         SmartDashboard.putNumber("Right Input", -inputs.yStick.get());
     }

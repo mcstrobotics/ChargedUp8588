@@ -7,7 +7,7 @@ package frc.robot;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
-import edu.wpi.first.wpilibj.XboxController;
+//import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutonCommand;
@@ -20,6 +20,8 @@ import frc.robot.subsystems.intake.IntakeChassis;
 import frc.robot.subsystems.intake.IntakeInputs;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.usercontrol.GamepadF310;
+
+import frc.robot.usercontrol.Constants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -38,7 +40,7 @@ public class RobotContainer {
   // good old F310
   private GamepadF310 f310 = new GamepadF310(1);
 
-  private XboxController xboxController = new XboxController(0);
+  //private XboxController xboxController = new XboxController(0);
 
   public DiffyDriveSubsystem driveSubsystem = new DiffyDriveSubsystem(
       new DiffyDriveChassis(
@@ -65,7 +67,7 @@ public class RobotContainer {
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer() {
+  public RobotContainer() { 
     // TODO Configure the trigger bindings
     // configureBindings(ahrs);
 
